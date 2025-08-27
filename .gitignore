@@ -1,0 +1,40 @@
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Sample data
+sample_pairs.json
+
+# Old files not needed for Quilt
+search_engine.py
+webhook_handler.py
+github_app.py
+requirements.txt
+github_app_requirements.txt
