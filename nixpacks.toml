@@ -1,11 +1,8 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311"]
 
 [phases.install]
-cmds = [
-    "python3 -m pip install --upgrade pip",
-    "python3 -m pip install --no-cache-dir -r requirements.txt"
-]
+cmds = ["echo 'Using Nixpacks automatic Python dependency management'"]
 
 [phases.build]
 cmds = ["echo 'Build complete'"]
