@@ -36,5 +36,4 @@ sample_pairs.json
 search_engine.py
 webhook_handler.py
 github_app.py
-requirements.txt
 github_app_requirements.txt
