@@ -79,23 +79,26 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 overflow-hidden">
         {/* Simple Maze Grid Background */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-px">
+        <div className="absolute inset-0 opacity-20">
+          <div className="grid grid-cols-20 grid-rows-12 h-full w-full">
             {Array.from({ length: 240 }).map((_, i) => (
-              <div key={i} className="border border-gray-600"></div>
+              <div key={i} className="border border-gray-700 bg-gray-900/10"></div>
             ))}
           </div>
         </div>
         
         {/* Moving Purple Block */}
         <div className="absolute inset-0 pointer-events-none">
-          <div 
-            className="w-6 h-6 bg-purple-500 rounded transition-all duration-1000 ease-in-out"
-            style={{
-              position: 'absolute',
-              animation: 'moveThroughMaze 20s infinite linear'
-            }}
-          ></div>
+          <div className="grid grid-cols-20 grid-rows-12 h-full w-full">
+            <div 
+              className="bg-purple-500 rounded-sm m-0.5 transition-all duration-1000 ease-in-out"
+              style={{
+                gridColumn: '1',
+                gridRow: '2',
+                animation: 'moveThroughMazeGrid 20s infinite linear'
+              }}
+            ></div>
+          </div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
