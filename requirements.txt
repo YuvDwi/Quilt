@@ -1,8 +1,2 @@
-fastapi
-uvicorn[standard]
-requests
-beautifulsoup4
-lxml
-scikit-learn
-numpy
-pydantic
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
