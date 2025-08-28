@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+
+import os
+import requests
+import json
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import tempfile
+import zipfile
+from pathlib import Path
+from simple_parser import EnhancedHTMLParser
+from hybrid_vector_search import HybridVectorSearch
+import sqlite3
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+
+app = FastAPI(title="Quilt React API", description="Backend API for Quilt React deployment interface")
+
+# Enable CORS for React frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class DeployRequest(BaseModel):
+    repo_url: str
+    token: str
+    user: str
+
+class QuiltDeployment:
+    def __init__(self):
+        self.html_parser = EnhancedHTMLParser()
+        self.vector_search = HybridVectorSearch()
+        self.db_path = "quilt_deployments.db"
+        self.init_database()
+    
+    def init_database(self):
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS deployments (
+                    id INTEGER PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    repo_name TEXT NOT NULL,
+                    repo_url TEXT NOT NULL,
+                    deployed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    status TEXT DEFAULT 'deployed',
+                    sections_indexed INTEGER DEFAULT 0
+                )
+            """)
+    
+    def deploy_repository(self, user_id: str, repo_url: str, access_token: str) -> Dict[str, Any]:
+        """Download and index a repository"""
+        try:
+            # Extract owner/repo from URL
+            parts = repo_url.replace('https://github.com/', '').split('/')
+            if len(parts) < 2:
+                raise Exception("Invalid repository URL")
+            
+            owner, repo = parts[0], parts[1]
+            
+            # Download repository as ZIP
+            download_url = f"https://api.github.com/repos/{owner}/{repo}/zipball/main"
+            headers = {'Authorization': f'token {access_token}'}
+            
+            response = requests.get(download_url, headers=headers)
+            if response.status_code != 200:
+                # Try 'master' branch if 'main' fails
+                download_url = f"https://api.github.com/repos/{owner}/{repo}/zipball/master"
+                response = requests.get(download_url, headers=headers)
+                if response.status_code != 200:
+                    raise Exception(f"Failed to download repository: {response.status_code}")
+            
+            # Extract and process HTML files
+            sections_indexed = 0
+            with tempfile.TemporaryDirectory() as temp_dir:
+                zip_path = Path(temp_dir) / "repo.zip"
+                with open(zip_path, 'wb') as f:
+                    f.write(response.content)
+                
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+                
+                # Find and process HTML files
+                for html_file in Path(temp_dir).rglob("*.html"):
+                    try:
+                        pairs = self.html_parser.parse_html_file(str(html_file))
+                        for pair in pairs:
+                            self.html_parser.add_document(
+                                f"{pair['title']}: {pair['content']}", 
+                                {
+                                    'repository': f"{owner}/{repo}",
+                                    'file': str(html_file.name),
+                                    'type': 'html_section',
+                                    'user': user_id
+                                }
+                            )
+                            sections_indexed += 1
+                    except Exception as e:
+                        print(f"Error processing {html_file}: {e}")
+            
+            # Record deployment
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute(
+                    "INSERT INTO deployments (user_id, repo_name, repo_url, sections_indexed) VALUES (?, ?, ?, ?)",
+                    (user_id, f"{owner}/{repo}", repo_url, sections_indexed)
+                )
+            
+            return {
+                'status': 'success',
+                'repository': f"{owner}/{repo}",
+                'sections_indexed': sections_indexed
+            }
+            
+        except Exception as e:
+            return {
+                'status': 'error',
+                'error': str(e)
+            }
+
+deployer = QuiltDeployment()
+
+@app.get("/")
+async def root():
+    """API status endpoint"""
+    return {
+        "message": "Quilt React API",
+        "version": "1.0.0",
+        "status": "running"
+    }
+
+@app.post("/deploy")
+async def deploy_repo(request: DeployRequest):
+    """Deploy and index a repository"""
+    result = deployer.deploy_repository(request.user, request.repo_url, request.token)
+    
+    if result['status'] == 'error':
+        raise HTTPException(status_code=400, detail=result['error'])
+    
+    return result
+
+@app.get("/deployments/{user}")
+async def get_deployments(user: str):
+    """Get user's deployments"""
+    with sqlite3.connect(deployer.db_path) as conn:
+        cursor = conn.execute(
+            "SELECT repo_name, repo_url, deployed_at, sections_indexed FROM deployments WHERE user_id = ? ORDER BY deployed_at DESC",
+            (user,)
+        )
+        deployments = [
+            {
+                'repo_name': row[0],
+                'repo_url': row[1], 
+                'deployed_at': row[2],
+                'sections_indexed': row[3]
+            }
+            for row in cursor.fetchall()
+        ]
+    
+    return {'deployments': deployments}
+
+@app.get("/search")
+async def search_content(query: str, search_type: str = "hybrid", max_results: int = 10):
+    """Search indexed content"""
+    try:
+        if search_type == "vector":
+            results = deployer.vector_search.search_similar(query, k=max_results)
+        elif search_type == "keyword":
+            results = deployer.vector_search.keyword_search(query, k=max_results)
+        else:  # hybrid
+            results = deployer.vector_search.hybrid_search(query, k=max_results)
+        
+        return {
+            "query": query,
+            "search_type": search_type,
+            "total_results": len(results),
+            "results": results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/stats")
+async def get_stats():
+    """Get deployment statistics"""
+    with sqlite3.connect(deployer.db_path) as conn:
+        # Total deployments
+        cursor = conn.execute("SELECT COUNT(*) FROM deployments")
+        total_deployments = cursor.fetchone()[0]
+        
+        # Total sections indexed
+        cursor = conn.execute("SELECT SUM(sections_indexed) FROM deployments")
+        total_sections = cursor.fetchone()[0] or 0
+        
+        # Unique users
+        cursor = conn.execute("SELECT COUNT(DISTINCT user_id) FROM deployments")
+        unique_users = cursor.fetchone()[0]
+        
+        # Recent deployments
+        cursor = conn.execute("SELECT repo_name, user_id, deployed_at FROM deployments ORDER BY deployed_at DESC LIMIT 10")
+        recent_deployments = [
+            {
+                'repo_name': row[0],
+                'user': row[1],
+                'deployed_at': row[2]
+            }
+            for row in cursor.fetchall()
+        ]
+    
+    return {
+        'total_deployments': total_deployments,
+        'total_sections_indexed': total_sections,
+        'unique_users': unique_users,
+        'recent_deployments': recent_deployments
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8005)
