@@ -22,7 +22,11 @@ app = FastAPI(title="Quilt React API", description="Backend API for Quilt React 
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=[
+        "http://localhost:3000",  # Local development
+        "https://*.vercel.app",   # Vercel deployment
+        "https://your-frontend-domain.vercel.app"  # Replace with your actual domain
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

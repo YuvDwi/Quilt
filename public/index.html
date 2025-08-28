@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quilt - Vector Database for the Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <!-- Header -->
+    <nav class="bg-white/80 backdrop-blur-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="database" class="h-8 w-8 text-indigo-600"></i>
+                    <span class="text-2xl font-bold text-slate-900">Quilt</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-slate-600 hover:text-slate-900">Features</a>
+                    <a href="#how-it-works" class="text-slate-600 hover:text-slate-900">How it Works</a>
+                    <a href="https://github.com/YuvDwi/Quilt" class="text-slate-600 hover:text-slate-900">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-20 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl md:text-6xl font-bold text-slate-900 mb-8">
+                Vector Database for
+                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                    the Web
+                </span>
+            </h1>
+            <p class="text-xl text-slate-600 mb-12 max-w-3xl mx-auto">
+                Deploy your repositories and automatically index HTML content with pre-computed vector embeddings. 
+                Revolutionize RAG systems with instant semantic search instead of real-time embedding generation.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button onclick="deployWithGitHub()" class="flex items-center space-x-2 bg-slate-900 text-white px-8 py-4 rounded-lg hover:bg-slate-800 transition-colors">
+                    <i data-lucide="github" class="h-5 w-5"></i>
+                    <span>Deploy with GitHub</span>
+                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                </button>
+                <a href="#demo" class="flex items-center space-x-2 text-slate-600 hover:text-slate-900">
+                    <span>View Demo</span>
+                    <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Why Quilt?</h2>
+                <p class="text-lg text-slate-600">Traditional RAG systems are inefficient. Quilt changes the game.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-8 rounded-xl bg-slate-50 hover:shadow-lg transition-shadow">
+                    <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="zap" class="h-8 w-8 text-indigo-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Instant Search</h3>
+                    <p class="text-slate-600">
+                        Pre-computed vectors eliminate real-time embedding generation. 
+                        Search happens in milliseconds, not seconds.
+                    </p>
+                </div>
+                
+                <div class="text-center p-8 rounded-xl bg-slate-50 hover:shadow-lg transition-shadow">
+                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="database" class="h-8 w-8 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Hybrid Search</h3>
+                    <p class="text-slate-600">
+                        TF-IDF vector similarity combined with keyword matching. 
+                        Best of semantic understanding and exact text matching.
+                    </p>
+                </div>
+                
+                <div class="text-center p-8 rounded-xl bg-slate-50 hover:shadow-lg transition-shadow">
+                    <div class="bg-cyan-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="search" class="h-8 w-8 text-cyan-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">One-Click Deploy</h3>
+                    <p class="text-slate-600">
+                        Connect GitHub, select repositories, and deploy instantly. 
+                        No complex webhook setup or configuration needed.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Demo -->
+    <section id="demo" class="py-20 bg-slate-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Try the API</h2>
+                <p class="text-lg text-slate-600">Test Quilt's search functionality</p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Search Query</label>
+                    <input type="text" id="searchQuery" placeholder="Enter your search query..." 
+                           class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Search Type</label>
+                    <select id="searchType" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="hybrid">Hybrid Search</option>
+                        <option value="vector">Vector Search</option>
+                        <option value="keyword">Keyword Search</option>
+                    </select>
+                </div>
+                
+                <button onclick="searchContent()" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors">
+                    Search
+                </button>
+                
+                <div id="searchResults" class="mt-6 hidden">
+                    <h3 class="font-semibold text-slate-900 mb-4">Results:</h3>
+                    <div id="resultsContainer" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 bg-slate-900 text-white">
+        <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold mb-6">Ready to revolutionize your search?</h2>
+            <p class="text-xl text-slate-300 mb-8">
+                Join the movement to make RAG systems faster and more efficient
+            </p>
+            <button onclick="deployWithGitHub()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+                Get Started with GitHub
+            </button>
+        </div>
+    </section>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // GitHub OAuth configuration
+        const GITHUB_CLIENT_ID = 'your_github_client_id'; // You'll replace this
+        const API_BASE_URL = window.location.origin; // Use same origin for Vercel functions
+
+        function deployWithGitHub() {
+            const redirectUri = encodeURIComponent(window.location.origin + '/auth/callback.html');
+            const scope = 'repo';
+            const state = Math.random().toString(36).substring(7);
+            
+            window.location.href = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+        }
+
+        async function searchContent() {
+            const query = document.getElementById('searchQuery').value;
+            const searchType = document.getElementById('searchType').value;
+            
+            if (!query.trim()) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}&search_type=${searchType}`);
+                const data = await response.json();
+                
+                displayResults(data);
+            } catch (error) {
+                console.error('Search failed:', error);
+                alert('Search failed. Please try again.');
+            }
+        }
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const searchResults = document.getElementById('searchResults');
+            
+            if (data.results && data.results.length > 0) {
+                resultsContainer.innerHTML = data.results.map(result => `
+                    <div class="p-4 bg-slate-50 rounded-lg">
+                        <div class="text-sm text-slate-600 mb-2">
+                            Score: ${result.score ? result.score.toFixed(3) : 'N/A'} | 
+                            Type: ${result.search_type || 'N/A'}
+                        </div>
+                        <p class="text-slate-900">${result.content}</p>
+                        ${result.metadata ? `
+                            <div class="mt-2 text-xs text-slate-500">
+                                Repository: ${result.metadata.repository || 'N/A'}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+                
+                searchResults.classList.remove('hidden');
+            } else {
+                resultsContainer.innerHTML = '<p class="text-slate-600">No results found.</p>';
+                searchResults.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
