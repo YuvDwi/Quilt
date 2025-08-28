@@ -90,36 +90,36 @@ export default function Home() {
           </svg>
         </div>
         
-        {/* Moving Purple Blocks */}
+        {/* Moving Snake-like Blocks */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="grid grid-cols-20 grid-rows-12 h-full w-full">
-            {/* First purple block */}
+            {/* Snake 1 */}
             <div 
-              className="bg-purple-500 rounded-sm m-1 transition-all duration-1000 ease-in-out"
+              className="bg-purple-500 transition-all duration-500 ease-linear"
               style={{
                 gridColumn: '1',
-                gridRow: '2',
-                animation: 'moveThroughMazeGrid1 20s infinite linear'
+                gridRow: '1',
+                animation: 'snakeMove1 16s infinite linear'
               }}
             ></div>
             
-            {/* Second purple block */}
+            {/* Snake 2 */}
             <div 
-              className="bg-purple-400 rounded-sm m-1 transition-all duration-1000 ease-in-out"
+              className="bg-purple-400 transition-all duration-500 ease-linear"
+              style={{
+                gridColumn: '20',
+                gridRow: '12',
+                animation: 'snakeMove2 20s infinite linear'
+              }}
+            ></div>
+            
+            {/* Snake 3 */}
+            <div 
+              className="bg-purple-600 transition-all duration-500 ease-linear"
               style={{
                 gridColumn: '10',
                 gridRow: '6',
-                animation: 'moveThroughMazeGrid2 25s infinite linear'
-              }}
-            ></div>
-            
-            {/* Third purple block */}
-            <div 
-              className="bg-purple-600 rounded-sm m-1 transition-all duration-1000 ease-in-out"
-              style={{
-                gridColumn: '15',
-                gridRow: '3',
-                animation: 'moveThroughMazeGrid3 30s infinite linear'
+                animation: 'snakeMove3 24s infinite linear'
               }}
             ></div>
           </div>
