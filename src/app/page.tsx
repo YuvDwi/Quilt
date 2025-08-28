@@ -92,34 +92,34 @@ export default function Home() {
         
         {/* Moving Snake-like Blocks */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="grid grid-cols-20 grid-rows-12 h-full w-full">
-            {/* Snake 1 */}
+          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-0">
+            {/* Snake 1 - Horizontal then Vertical */}
             <div 
-              className="bg-purple-500 transition-all duration-500 ease-linear"
+              className="bg-purple-500 w-full h-full"
+              style={{
+                gridColumn: '1',
+                gridRow: '2',
+                animation: 'snakeMove1 20s infinite steps(1, end)'
+              }}
+            ></div>
+            
+            {/* Snake 2 - Perimeter Loop */}
+            <div 
+              className="bg-purple-400 w-full h-full"
               style={{
                 gridColumn: '1',
                 gridRow: '1',
-                animation: 'snakeMove1 16s infinite linear'
+                animation: 'snakeMove2 30s infinite steps(1, end)'
               }}
             ></div>
             
-            {/* Snake 2 */}
+            {/* Snake 3 - Figure 8 Pattern */}
             <div 
-              className="bg-purple-400 transition-all duration-500 ease-linear"
-              style={{
-                gridColumn: '20',
-                gridRow: '12',
-                animation: 'snakeMove2 20s infinite linear'
-              }}
-            ></div>
-            
-            {/* Snake 3 */}
-            <div 
-              className="bg-purple-600 transition-all duration-500 ease-linear"
+              className="bg-purple-600 w-full h-full"
               style={{
                 gridColumn: '10',
                 gridRow: '6',
-                animation: 'snakeMove3 24s infinite linear'
+                animation: 'snakeMove3 25s infinite steps(1, end)'
               }}
             ></div>
           </div>
