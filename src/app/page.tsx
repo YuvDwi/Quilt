@@ -77,11 +77,31 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="text-left">
+      <section className="relative h-screen overflow-hidden">
+        {/* Grid Background with Moving Blocks */}
+        <div className="absolute inset-0">
+          {/* SVG Grid */}
+          <svg className="w-full h-full opacity-30" viewBox="0 0 400 240">
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.5" opacity="0.3"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
+          
+          {/* Moving Purple Blocks */}
+          <div className="absolute inset-0 grid grid-cols-20 grid-rows-12 gap-1 p-2">
+            <div className="bg-purple-500 rounded-sm block-1"></div>
+            <div className="bg-purple-600 rounded-sm block-2"></div>
+            <div className="bg-purple-400 rounded-sm block-3"></div>
+          </div>
+        </div>
+
+        {/* Content Overlay */}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center bg-black/20 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-8 tracking-tight leading-tight">
                 Internet Infrastructure,{' '}
                 <span className="text-purple-400">
@@ -89,12 +109,12 @@ export default function Home() {
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-2xl">
+              <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-3xl mx-auto">
                 Today's web is human-first. Search engines, browsers, and content all assume people are on the other end. 
                 But LLMs need context, structure, and meaning — not buttons and pictures.
               </p>
           
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={handleGitHubLogin}
                   disabled={isLoading}
@@ -114,9 +134,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            
-            {/* Right side placeholder for balance */}
-            <div className="hidden lg:block"></div>
           </div>
         </div>
       </section>

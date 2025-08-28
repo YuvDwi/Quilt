@@ -93,4 +93,41 @@ body {
   }
 }
 
+/* Block Animations */
+.block-1 {
+  animation: moveBlock1 8s linear infinite;
+}
+
+.block-2 {
+  animation: moveBlock2 12s linear infinite;
+}
+
+.block-3 {
+  animation: moveBlock3 10s linear infinite;
+}
+
+@keyframes moveBlock1 {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(400%, 0); }
+  50% { transform: translate(400%, 300%); }
+  75% { transform: translate(0, 300%); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes moveBlock2 {
+  0% { transform: translate(1900%, 0); }
+  25% { transform: translate(1900%, 500%); }
+  50% { transform: translate(800%, 500%); }
+  75% { transform: translate(800%, 200%); }
+  100% { transform: translate(1900%, 0); }
+}
+
+@keyframes moveBlock3 {
+  0% { transform: translate(1000%, 1100%); }
+  25% { transform: translate(200%, 1100%); }
+  50% { transform: translate(200%, 200%); }
+  75% { transform: translate(1600%, 200%); }
+  100% { transform: translate(1000%, 1100%); }
+}
+
 
