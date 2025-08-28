@@ -53,3 +53,18 @@ body {
 .animate-gradient {
   animation: gradient 3s ease infinite;
 }
+
+@keyframes moveThroughMaze {
+  0% { top: 10%; left: 5%; }
+  10% { top: 10%; left: 25%; }
+  20% { top: 30%; left: 25%; }
+  25% { top: 30%; left: 45%; }
+  35% { top: 50%; left: 45%; }
+  45% { top: 50%; left: 70%; }
+  55% { top: 30%; left: 70%; }
+  65% { top: 30%; left: 85%; }
+  75% { top: 70%; left: 85%; }
+  85% { top: 70%; left: 60%; }
+  95% { top: 90%; left: 60%; }
+  100% { top: 90%; left: 5%; }
+}
