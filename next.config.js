@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    appDir: true,
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react']
   },
-  env: {
-    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
-    QUILT_API_URL: process.env.QUILT_API_URL || 'https://quilt-production.up.railway.app',
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
   },
+  swcMinify: true,
+  output: 'standalone'
 }
 
 module.exports = nextConfig
