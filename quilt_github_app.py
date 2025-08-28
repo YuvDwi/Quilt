@@ -17,6 +17,7 @@ import tempfile
 import shutil
 
 from simple_parser import EnhancedHTMLParser
+from hybrid_vector_search import HybridVectorSearch
 import config
 
 class QuiltGitHubApp:
@@ -30,6 +31,7 @@ class QuiltGitHubApp:
             self.private_key = key_file.read()
         
         self.html_parser = EnhancedHTMLParser()
+        self.vector_search = HybridVectorSearch()
         
         self.quilt_api_url = os.getenv('QUILT_API_URL', 'http://localhost:8000')
         self.quilt_api_key = os.getenv('QUILT_API_KEY', '')
