@@ -36,3 +36,8 @@ sample_pairs.json
 webhook_handler.py
 github_app.py
 github_app_requirements.txt
+
+# Private keys and sensitive files
+*.pem
+*.key
+*.private
