@@ -91,10 +91,13 @@ export default function Home() {
           </svg>
           
           {/* Moving Purple Blocks */}
-          <div className="absolute inset-0 grid grid-cols-20 grid-rows-12 gap-1 p-2">
-            <div className="bg-purple-500 rounded-sm block-1"></div>
-            <div className="bg-purple-600 rounded-sm block-2"></div>
-            <div className="bg-purple-400 rounded-sm block-3"></div>
+          <div className="absolute inset-0 p-2">
+            <div className="relative w-full h-full">
+              <div className="absolute bg-purple-500 block-1"></div>
+              <div className="absolute bg-purple-600 block-2"></div>
+              <div className="absolute bg-purple-400 block-3"></div>
+              <div className="absolute bg-purple-300 block-4"></div>
+            </div>
           </div>
         </div>
 

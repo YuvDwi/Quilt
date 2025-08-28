@@ -93,53 +93,59 @@ body {
   }
 }
 
-/* Block Animations */
+/* Block Animations - Grid-sized squares moving uniformly */
+.block-1, .block-2, .block-3, .block-4 {
+  width: calc((100% - 19 * 4px) / 20); /* Grid cell width accounting for gaps */
+  height: calc((100% - 11 * 4px) / 12); /* Grid cell height accounting for gaps */
+  border-radius: 2px;
+}
+
 .block-1 {
-  animation: moveBlock1 4s linear infinite;
+  animation: moveBlock1 8s linear infinite;
 }
 
 .block-2 {
-  animation: moveBlock2 4s linear infinite;
+  animation: moveBlock2 10s linear infinite;
 }
 
 .block-3 {
-  animation: moveBlock3 4s linear infinite;
+  animation: moveBlock3 12s linear infinite;
+}
+
+.block-4 {
+  animation: moveBlock4 14s linear infinite;
 }
 
 @keyframes moveBlock1 {
-  0% { transform: translate(0, 0); }
-  12.5% { transform: translate(400%, 0); }
-  25% { transform: translate(400%, 300%); }
-  37.5% { transform: translate(800%, 300%); }
-  50% { transform: translate(800%, 600%); }
-  62.5% { transform: translate(200%, 600%); }
-  75% { transform: translate(200%, 100%); }
-  87.5% { transform: translate(0, 100%); }
-  100% { transform: translate(0, 0); }
+  0% { left: 0%; top: 0%; }
+  25% { left: 95%; top: 0%; }
+  50% { left: 95%; top: 92%; }
+  75% { left: 0%; top: 92%; }
+  100% { left: 0%; top: 0%; }
 }
 
 @keyframes moveBlock2 {
-  0% { transform: translate(1900%, 0); }
-  12.5% { transform: translate(1900%, 400%); }
-  25% { transform: translate(1500%, 400%); }
-  37.5% { transform: translate(1500%, 800%); }
-  50% { transform: translate(1000%, 800%); }
-  62.5% { transform: translate(1000%, 200%); }
-  75% { transform: translate(1600%, 200%); }
-  87.5% { transform: translate(1600%, 0); }
-  100% { transform: translate(1900%, 0); }
+  0% { left: 50%; top: 25%; }
+  25% { left: 75%; top: 25%; }
+  50% { left: 75%; top: 67%; }
+  75% { left: 50%; top: 67%; }
+  100% { left: 50%; top: 25%; }
 }
 
 @keyframes moveBlock3 {
-  0% { transform: translate(500%, 1100%); }
-  12.5% { transform: translate(500%, 700%); }
-  25% { transform: translate(900%, 700%); }
-  37.5% { transform: translate(900%, 300%); }
-  50% { transform: translate(300%, 300%); }
-  62.5% { transform: translate(300%, 900%); }
-  75% { transform: translate(1200%, 900%); }
-  87.5% { transform: translate(1200%, 1100%); }
-  100% { transform: translate(500%, 1100%); }
+  0% { left: 25%; top: 50%; }
+  25% { left: 25%; top: 17%; }
+  50% { left: 80%; top: 17%; }
+  75% { left: 80%; top: 50%; }
+  100% { left: 25%; top: 50%; }
+}
+
+@keyframes moveBlock4 {
+  0% { left: 10%; top: 75%; }
+  25% { left: 60%; top: 75%; }
+  50% { left: 60%; top: 42%; }
+  75% { left: 10%; top: 42%; }
+  100% { left: 10%; top: 75%; }
 }
 
 
