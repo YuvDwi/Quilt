@@ -80,7 +80,7 @@ export default function Home() {
 
     const interval = setInterval(moveBlocks, 300) // Move every 300ms
     return () => clearInterval(interval)
-  }, [])
+  }, [GRID_COLS, GRID_ROWS])
 
   const handleGitHubLogin = () => {
     setIsLoading(true)
