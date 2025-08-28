@@ -134,7 +134,7 @@ export default function Home() {
                     onClick={handleViewDemo}
                     className="border border-gray-600 text-white px-8 py-4 rounded-lg hover:border-gray-500 transition-colors flex items-center space-x-2"
                   >
-                    <span>Contact Sales</span>
+                    <span>Our Story</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -148,14 +148,14 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-20 bg-gray-900">
+      <section id="features" className="py-20 bg-black">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl text-white mb-4">
-              Build, deploy, and scale your apps with unparalleled ease
+              Websites that speak the language of LLMs
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              From your first user to your billionth
+              No matter the content
             </p>
           </div>
           
@@ -166,7 +166,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-medium text-white mb-4">Universal Compatibility</h3>
               <p className="text-gray-400 leading-relaxed">
-                Works with any GitHub repository. HTML, Markdown, code files — we parse it all into structured, searchable content.
+                Our search API ensures, every LLM has efficient and quick access to the information you put out.
               </p>
             </div>
             
@@ -184,9 +184,9 @@ export default function Home() {
               <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-6">
                 <Network className="h-6 w-6 text-white" />
               </div>
-              <h3 className="text-xl font-medium text-white mb-4">Production Ready</h3>
+              <h3 className="text-xl font-medium text-white mb-4">Developer Friendly</h3>
               <p className="text-gray-400 leading-relaxed">
-                Deploy on Railway + Vercel in minutes. Built for scale with enterprise-grade reliability and performance.
+                Integrates seamlessly with React, no downloads, just specify the component ID.
               </p>
             </div>
           </div>
@@ -194,8 +194,20 @@ export default function Home() {
       </section>
 
       {/* How it Works */}
-      <section id="how-it-works" className="py-20 bg-black">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="relative py-20 bg-black overflow-hidden">
+        {/* Grid Background */}
+        <div className="absolute inset-0">
+          <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
+            <defs>
+              <pattern id="grid-how-it-works" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.7" opacity="0.4"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-how-it-works)" />
+          </svg>
+        </div>
+        
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl text-white mb-4">
               Your fastest path to production
@@ -250,7 +262,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-gray-900 border-t border-gray-800">
+      <section className="py-20 bg-black border-t border-gray-800">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl text-white mb-6">
             Ready to deploy your vector database?
