@@ -21,6 +21,7 @@ export default function Home() {
     { x: 15, y: 1, vx: 0, vy: 1, id: 'block2', color: 'bg-purple-400' },
     { x: 8, y: 6, vx: -1, vy: 0, id: 'block3', color: 'bg-purple-600' }
   ])
+
   const GRID_COLS = 20
   const GRID_ROWS = 12
 
@@ -184,39 +185,37 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-12 items-center h-full">
               {/* Left Content */}
               <div className="text-left bg-black/20 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-8 tracking-tight leading-tight">
-                Internet Infrastructure,{' '}
-                <span className="text-purple-400">
-                  Now For LLMs
-                </span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-2xl">
-                Today's web is human-first. Search engines, browsers, and content all assume people are on the other end. 
-                But LLMs need context, structure, and meaning — not buttons and pictures.
-              </p>
-          
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={handleGitHubLogin}
-                  disabled={isLoading}
-                  className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center space-x-2"
-                >
-                  <Github className="h-5 w-5" />
-                  <span>{isLoading ? 'Connecting...' : 'Get Started for Free'}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-8 tracking-tight leading-tight">
+                  Internet Infrastructure,{' '}
+                  <span className="text-purple-400">
+                    Now For LLMs
+                  </span>
+                </h1>
                 
-                <button 
-                  onClick={handleViewDemo}
-                  className="border border-gray-600 text-white px-8 py-4 rounded-lg font-semibold hover:border-gray-500 transition-colors flex items-center space-x-2"
-                >
-                  <span>Contact Sales</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+                <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-2xl">
+                  Today's web is human-first. Search engines, browsers, and content all assume people are on the other end. 
+                  But LLMs need context, structure, and meaning — not buttons and pictures.
+                </p>
             
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={handleGitHubLogin}
+                    disabled={isLoading}
+                    className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center space-x-2"
+                  >
+                    <Github className="h-5 w-5" />
+                    <span>{isLoading ? 'Connecting...' : 'Get Started for Free'}</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  
+                  <button 
+                    onClick={handleViewDemo}
+                    className="border border-gray-600 text-white px-8 py-4 rounded-lg font-semibold hover:border-gray-500 transition-colors flex items-center space-x-2"
+                  >
+                    <span>Contact Sales</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               
               {/* Right side - Empty for grid visibility */}
@@ -269,7 +268,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-          
         </div>
       </section>
 
