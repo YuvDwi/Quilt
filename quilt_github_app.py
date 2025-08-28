@@ -27,8 +27,18 @@ class QuiltGitHubApp:
         self.installation_id = installation_id
         self.base_url = "https://api.github.com"
         
-        with open(private_key_path, 'r') as key_file:
-            self.private_key = key_file.read()
+        # Try to get private key from environment variable first, then file
+        private_key_env = os.getenv('GITHUB_PRIVATE_KEY')
+        if private_key_env:
+            # Replace \\n with actual newlines for environment variable
+            self.private_key = private_key_env.replace('\\n', '\n')
+        else:
+            # Fallback to file (for local development)
+            try:
+                with open(private_key_path, 'r') as key_file:
+                    self.private_key = key_file.read()
+            except FileNotFoundError:
+                raise Exception(f"Private key not found. Set GITHUB_PRIVATE_KEY environment variable or provide file at {private_key_path}")
         
         self.html_parser = EnhancedHTMLParser()
         self.vector_search = HybridVectorSearch()
