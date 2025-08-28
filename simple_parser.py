@@ -5,16 +5,11 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 import json
 import sqlite3
-import numpy as np
-from sentence_transformers import SentenceTransformer
 import re
 from typing import List, Dict, Any, Optional
 
 class EnhancedHTMLParser:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
-        self.model = SentenceTransformer(model_name)
-        self.dimension = 384
-        self.index = None
+    def __init__(self):
         self.db_path = "search_data.db"
         self.init_database()
     
@@ -24,7 +19,6 @@ class EnhancedHTMLParser:
                 CREATE TABLE IF NOT EXISTS documents (
                     id INTEGER PRIMARY KEY,
                     content TEXT NOT NULL,
-                    embedding BLOB,
                     metadata TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
@@ -32,11 +26,10 @@ class EnhancedHTMLParser:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_content ON documents(content)")
     
     def add_document(self, content: str, metadata: Dict = None):
-        embedding = self.model.encode(content)
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
-                "INSERT INTO documents (content, embedding, metadata) VALUES (?, ?, ?)",
-                (content, embedding.tobytes(), json.dumps(metadata) if metadata else None)
+                "INSERT INTO documents (content, metadata) VALUES (?, ?)",
+                (content, json.dumps(metadata) if metadata else None)
             )
     
     def parse_html_file(self, file_path: str) -> List[Dict[str, str]]:
