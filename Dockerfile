@@ -1,20 +1,3 @@
-FROM node:18-slim as frontend
-
-WORKDIR /app/frontend
-
-# Copy package files
-COPY package.json package-lock.json* ./
-RUN npm install
-
-# Copy frontend source
-COPY src ./src
-COPY next.config.js tailwind.config.js postcss.config.js* ./
-COPY *.json ./
-
-# Build the React app
-RUN npm run build
-
-# Backend stage
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -26,20 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy Python backend files
 COPY *.py ./
 
-# Copy built React app from frontend stage
-COPY --from=frontend /app/frontend/.next ./.next
-COPY --from=frontend /app/frontend/public ./public
-COPY --from=frontend /app/frontend/package.json ./
+# Expose port
+EXPOSE 8005
 
-# Install Node.js for serving the React app
-RUN apt-get update && apt-get install -y curl
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-RUN apt-get install -y nodejs
-
-# Expose ports
-EXPOSE 3000 8005
-
-# Create startup script
-RUN echo '#!/bin/bash\npython3 quilt_react_api.py &\nnpm start &\nwait' > start.sh && chmod +x start.sh
-
-CMD ["./start.sh"]
+# Start the API only
+CMD ["python3", "quilt_react_api.py"]
