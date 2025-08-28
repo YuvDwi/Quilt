@@ -1,15 +1,88 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Github, Database, Zap, Search, ArrowRight, ExternalLink, Play, ChevronRight, Globe, Cpu, Network } from 'lucide-react'
 import Link from 'next/link'
+
+interface Block {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  id: string
+  color: string
+}
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  const [blocks, setBlocks] = useState<Block[]>([
+    { x: 2, y: 3, vx: 1, vy: 0, id: 'block1', color: 'bg-purple-500' },
+    { x: 15, y: 1, vx: 0, vy: 1, id: 'block2', color: 'bg-purple-400' },
+    { x: 8, y: 6, vx: -1, vy: 0, id: 'block3', color: 'bg-purple-600' }
+  ])
+  const animationRef = useRef<number>()
+
+  const GRID_COLS = 20
+  const GRID_ROWS = 12
+  const BLOCK_SIZE = 1
 
   useEffect(() => {
     setIsVisible(true)
+    
+    const moveBlocks = () => {
+      setBlocks(prevBlocks => {
+        return prevBlocks.map(block => {
+          let newX = block.x + block.vx
+          let newY = block.y + block.vy
+          let newVx = block.vx
+          let newVy = block.vy
+
+          // Wall collision - repel from edges
+          if (newX <= 0 || newX >= GRID_COLS - 1) {
+            newVx = -newVx
+            newX = Math.max(1, Math.min(GRID_COLS - 2, newX))
+          }
+          if (newY <= 0 || newY >= GRID_ROWS - 1) {
+            newVy = -newVy
+            newY = Math.max(1, Math.min(GRID_ROWS - 2, newY))
+          }
+
+          // Check collision with other blocks
+          const otherBlocks = prevBlocks.filter(b => b.id !== block.id)
+          for (const other of otherBlocks) {
+            const dx = newX - other.x
+            const dy = newY - other.y
+            const distance = Math.sqrt(dx * dx + dy * dy)
+            
+            if (distance < 2) { // Collision detected
+              // Repel in opposite directions
+              if (Math.abs(dx) > Math.abs(dy)) {
+                newVx = dx > 0 ? 1 : -1
+                newVy = 0
+              } else {
+                newVx = 0
+                newVy = dy > 0 ? 1 : -1
+              }
+              // Push apart
+              newX = block.x + newVx
+              newY = block.y + newVy
+            }
+          }
+
+          return {
+            ...block,
+            x: newX,
+            y: newY,
+            vx: newVx,
+            vy: newVy
+          }
+        })
+      })
+    }
+
+    const interval = setInterval(moveBlocks, 300) // Move every 300ms
+    return () => clearInterval(interval)
   }, [])
 
   const handleGitHubLogin = () => {
@@ -76,51 +149,44 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        {/* Simple Maze Grid Background */}
+      {/* Hero Section - Full Screen */}
+      <section className="relative h-screen overflow-hidden">
+        {/* Square Grid Background with Glow */}
         <div className="absolute inset-0">
-          <svg className="w-full h-full opacity-15">
-            <defs>
-              <pattern id="grid" width="5%" height="8.33%" patternUnits="userSpaceOnUse">
-                <rect width="100%" height="100%" fill="none" stroke="#6b7280" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
+          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-1 p-2">
+            {Array.from({ length: GRID_COLS * GRID_ROWS }).map((_, i) => (
+              <div 
+                key={i} 
+                className="border border-purple-500/20 bg-purple-900/5 rounded-sm glow-square"
+                style={{ aspectRatio: '1' }}
+              ></div>
+            ))}
+          </div>
         </div>
         
-        {/* Moving Snake-like Blocks */}
-        <div className="absolute inset-0 pointer-events-none">
-          {/* Snake 1 - Dynamic movement with axis changes */}
-          <div 
-            className="absolute bg-purple-500 snake-block"
-            style={{
-              animation: 'snakeMoveDynamic1 8s infinite linear'
-            }}
-          ></div>
-          
-          {/* Snake 2 - Dynamic movement with axis changes */}
-          <div 
-            className="absolute bg-purple-400 snake-block"
-            style={{
-              animation: 'snakeMoveDynamic2 10s infinite linear'
-            }}
-          ></div>
-          
-          {/* Snake 3 - Dynamic movement with axis changes */}
-          <div 
-            className="absolute bg-purple-600 snake-block"
-            style={{
-              animation: 'snakeMoveDynamic3 12s infinite linear'
-            }}
-          ></div>
+        {/* Physics-based Blocks */}
+        <div className="absolute inset-0 p-2">
+          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-1">
+            {blocks.map(block => (
+              <div
+                key={block.id}
+                className={`${block.color} rounded-sm shadow-lg transition-all duration-300 ease-linear glow-block`}
+                style={{
+                  gridColumn: block.x + 1,
+                  gridRow: block.y + 1,
+                  aspectRatio: '1'
+                }}
+              ></div>
+            ))}
+          </div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="text-left">
+        {/* Content Overlay */}
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="grid lg:grid-cols-2 gap-12 items-center h-full">
+              {/* Left Content */}
+              <div className="text-left bg-black/20 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-8 tracking-tight leading-tight">
                 Internet Infrastructure,{' '}
                 <span className="text-purple-400">
@@ -154,8 +220,11 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Right side placeholder for balance */}
-            <div className="hidden lg:block"></div>
+              </div>
+              
+              {/* Right side - Empty for grid visibility */}
+              <div className="hidden lg:block"></div>
+            </div>
           </div>
         </div>
       </section>

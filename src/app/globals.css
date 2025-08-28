@@ -54,51 +54,43 @@ body {
   animation: gradient 3s ease infinite;
 }
 
-/* Snake block styling */
-.snake-block {
-  width: 5%; /* 1/20th of container width */
-  height: 8.33%; /* 1/12th of container height */
-  border-radius: 2px;
+/* Glow effects for grid squares */
+.glow-square {
+  box-shadow: 
+    inset 0 1px 2px rgba(168, 85, 247, 0.1),
+    0 0 4px rgba(168, 85, 247, 0.05);
+  transition: all 0.3s ease;
 }
 
-/* Fast, consistent-speed movement with random axis changes */
-@keyframes snakeMoveDynamic1 {
-  /* Start horizontal, then switch to vertical */
-  0% { left: 0%; top: 16.66%; } /* Row 3, start */
-  12.5% { left: 25%; top: 16.66%; } /* Move right */
-  25% { left: 50%; top: 16.66%; } /* Continue right */
-  37.5% { left: 50%; top: 33.33%; } /* Switch to vertical down */
-  50% { left: 50%; top: 58.33%; } /* Continue down */
-  62.5% { left: 50%; top: 83.33%; } /* Continue down */
-  75% { left: 25%; top: 83.33%; } /* Switch to horizontal left */
-  87.5% { left: 0%; top: 83.33%; } /* Continue left */
-  100% { left: 0%; top: 16.66%; } /* Switch to vertical up, back to start */
+.glow-square:hover {
+  box-shadow: 
+    inset 0 1px 2px rgba(168, 85, 247, 0.2),
+    0 0 8px rgba(168, 85, 247, 0.15);
+  background-color: rgba(168, 85, 247, 0.1);
 }
 
-@keyframes snakeMoveDynamic2 {
-  /* Start vertical, then switch to horizontal */
-  0% { left: 75%; top: 0%; } /* Column 16, top */
-  12.5% { left: 75%; top: 25%; } /* Move down */
-  25% { left: 75%; top: 50%; } /* Continue down */
-  37.5% { left: 50%; top: 50%; } /* Switch to horizontal left */
-  50% { left: 25%; top: 50%; } /* Continue left */
-  62.5% { left: 0%; top: 50%; } /* Continue left */
-  75% { left: 0%; top: 25%; } /* Switch to vertical up */
-  87.5% { left: 0%; top: 0%; } /* Continue up */
-  100% { left: 75%; top: 0%; } /* Switch to horizontal right, back to start */
+/* Glow effects for moving blocks */
+.glow-block {
+  box-shadow: 
+    0 0 8px rgba(168, 85, 247, 0.4),
+    0 0 16px rgba(168, 85, 247, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  animation: pulseGlow 2s ease-in-out infinite alternate;
 }
 
-@keyframes snakeMoveDynamic3 {
-  /* L-shaped movement pattern */
-  0% { left: 15%; top: 75%; } /* Start position */
-  16.66% { left: 35%; top: 75%; } /* Move right */
-  33.33% { left: 55%; top: 75%; } /* Continue right */
-  50% { left: 75%; top: 75%; } /* Continue right */
-  66.66% { left: 75%; top: 50%; } /* Switch to vertical up */
-  75% { left: 75%; top: 25%; } /* Continue up */
-  83.33% { left: 75%; top: 0%; } /* Continue up */
-  91.66% { left: 45%; top: 0%; } /* Switch to horizontal left */
-  100% { left: 15%; top: 75%; } /* Jump back to start (like teleport) */
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 
+      0 0 8px rgba(168, 85, 247, 0.4),
+      0 0 16px rgba(168, 85, 247, 0.2),
+      inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 0 12px rgba(168, 85, 247, 0.6),
+      0 0 24px rgba(168, 85, 247, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
 }
 
 
