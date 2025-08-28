@@ -54,36 +54,84 @@ body {
   animation: gradient 3s ease infinite;
 }
 
-/* Snake-like movement animations - predictable patterns */
-@keyframes snakeMove1 {
-  /* Simple horizontal sweep then return */
-  0% { grid-column: 1; grid-row: 2; }
-  25% { grid-column: 10; grid-row: 2; }
-  50% { grid-column: 20; grid-row: 2; }
-  75% { grid-column: 10; grid-row: 2; }
-  100% { grid-column: 1; grid-row: 2; }
+/* Snake block styling */
+.snake-block {
+  width: 5%; /* 1/20th of container width */
+  height: 8.33%; /* 1/12th of container height */
+  border-radius: 2px;
 }
 
-@keyframes snakeMove2 {
-  /* Perimeter loop around the grid */
-  0% { grid-column: 1; grid-row: 1; }
-  12.5% { grid-column: 20; grid-row: 1; }
-  25% { grid-column: 20; grid-row: 12; }
-  37.5% { grid-column: 1; grid-row: 12; }
-  50% { grid-column: 1; grid-row: 1; }
-  62.5% { grid-column: 20; grid-row: 1; }
-  75% { grid-column: 20; grid-row: 12; }
-  87.5% { grid-column: 1; grid-row: 12; }
-  100% { grid-column: 1; grid-row: 1; }
+/* Smooth snake-like movement animations using transforms */
+@keyframes snakeMoveHorizontal {
+  /* Horizontal back and forth movement on row 2 */
+  0% { 
+    left: 0%; 
+    top: 8.33%; /* Row 2 position */
+  }
+  25% { 
+    left: 47.5%; /* Center position */
+    top: 8.33%; 
+  }
+  50% { 
+    left: 95%; /* Right edge */
+    top: 8.33%; 
+  }
+  75% { 
+    left: 47.5%; /* Back to center */
+    top: 8.33%; 
+  }
+  100% { 
+    left: 0%; /* Back to start */
+    top: 8.33%; 
+  }
 }
 
-@keyframes snakeMove3 {
-  /* Vertical sweep in center */
-  0% { grid-column: 10; grid-row: 1; }
-  25% { grid-column: 10; grid-row: 6; }
-  50% { grid-column: 10; grid-row: 12; }
-  75% { grid-column: 10; grid-row: 6; }
-  100% { grid-column: 10; grid-row: 1; }
+@keyframes snakeMovePerimeter {
+  /* Smooth perimeter loop */
+  0% { 
+    left: 0%; 
+    top: 0%; 
+  }
+  25% { 
+    left: 95%; 
+    top: 0%; 
+  }
+  50% { 
+    left: 95%; 
+    top: 91.67%; /* Bottom row */
+  }
+  75% { 
+    left: 0%; 
+    top: 91.67%; 
+  }
+  100% { 
+    left: 0%; 
+    top: 0%; 
+  }
+}
+
+@keyframes snakeMoveVertical {
+  /* Vertical movement in center column */
+  0% { 
+    left: 47.5%; /* Center column */
+    top: 0%; 
+  }
+  25% { 
+    left: 47.5%; 
+    top: 41.67%; /* Middle */
+  }
+  50% { 
+    left: 47.5%; 
+    top: 91.67%; /* Bottom */
+  }
+  75% { 
+    left: 47.5%; 
+    top: 41.67%; /* Back to middle */
+  }
+  100% { 
+    left: 47.5%; 
+    top: 0%; /* Back to top */
+  }
 }
 
 

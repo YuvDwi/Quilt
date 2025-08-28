@@ -92,37 +92,29 @@ export default function Home() {
         
         {/* Moving Snake-like Blocks */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-0">
-            {/* Snake 1 - Horizontal then Vertical */}
-            <div 
-              className="bg-purple-500 w-full h-full"
-              style={{
-                gridColumn: '1',
-                gridRow: '2',
-                animation: 'snakeMove1 20s infinite steps(1, end)'
-              }}
-            ></div>
-            
-            {/* Snake 2 - Perimeter Loop */}
-            <div 
-              className="bg-purple-400 w-full h-full"
-              style={{
-                gridColumn: '1',
-                gridRow: '1',
-                animation: 'snakeMove2 30s infinite steps(1, end)'
-              }}
-            ></div>
-            
-            {/* Snake 3 - Figure 8 Pattern */}
-            <div 
-              className="bg-purple-600 w-full h-full"
-              style={{
-                gridColumn: '10',
-                gridRow: '6',
-                animation: 'snakeMove3 25s infinite steps(1, end)'
-              }}
-            ></div>
-          </div>
+          {/* Snake 1 - Horizontal movement */}
+          <div 
+            className="absolute bg-purple-500 snake-block"
+            style={{
+              animation: 'snakeMoveHorizontal 20s infinite linear'
+            }}
+          ></div>
+          
+          {/* Snake 2 - Perimeter loop */}
+          <div 
+            className="absolute bg-purple-400 snake-block"
+            style={{
+              animation: 'snakeMovePerimeter 40s infinite linear'
+            }}
+          ></div>
+          
+          {/* Snake 3 - Vertical movement */}
+          <div 
+            className="absolute bg-purple-600 snake-block"
+            style={{
+              animation: 'snakeMoveVertical 30s infinite linear'
+            }}
+          ></div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
