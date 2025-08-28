@@ -23,11 +23,10 @@ export default function AuthCallback() {
       try {
         setStatus('Exchanging authorization code...')
         
-        // Exchange code for access token
-        const tokenResponse = await axios.post('https://github.com/login/oauth/access_token', {
-          client_id: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
-          client_secret: process.env.NEXT_PUBLIC_GITHUB_CLIENT_SECRET,
-          code: code
+        // Exchange code for access token via backend (more secure)
+        const tokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_QUILT_API_URL}/auth/github/callback`, {
+          code: code,
+          state: state
         }, {
           headers: {
             'Accept': 'application/json'
@@ -35,21 +34,11 @@ export default function AuthCallback() {
         })
 
         const accessToken = tokenResponse.data.access_token
+        const user = tokenResponse.data.user
 
-        if (!accessToken) {
-          throw new Error('Failed to get access token')
+        if (!accessToken || !user) {
+          throw new Error('Failed to get access token or user info')
         }
-
-        setStatus('Getting user information...')
-
-        // Get user info
-        const userResponse = await axios.get('https://api.github.com/user', {
-          headers: {
-            'Authorization': `token ${accessToken}`
-          }
-        })
-
-        const user = userResponse.data
 
         setStatus('Redirecting to dashboard...')
 
