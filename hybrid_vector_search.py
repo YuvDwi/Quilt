@@ -1,20 +1,16 @@
 import sqlite3
 import json
 import re
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
+import math
+from collections import Counter, defaultdict
 from typing import List, Dict, Any, Optional
 
 class HybridVectorSearch:
     def __init__(self):
         self.db_path = "search_data.db"
-        self.vectorizer = TfidfVectorizer(
-            max_features=1000,
-            stop_words='english',
-            ngram_range=(1, 2)
-        )
-        self.vectors = None
         self.documents = []
+        self.word_frequencies = defaultdict(lambda: defaultdict(int))
+        self.document_frequencies = defaultdict(int)
         self.init_database()
         self._load_existing_documents()
 
@@ -32,144 +28,141 @@ class HybridVectorSearch:
 
     def _load_existing_documents(self):
         with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("SELECT content FROM documents ORDER BY id")
-            self.documents = [row[0] for row in cursor.fetchall()]
-            if self.documents:
-                self._rebuild_vectors()
+            cursor = conn.execute("SELECT id, content FROM documents ORDER BY id")
+            for doc_id, content in cursor.fetchall():
+                self.documents.append((doc_id, content))
+                self._update_frequencies(content, doc_id)
 
-    def _rebuild_vectors(self):
-        if len(self.documents) > 0:
-            try:
-                self.vectors = self.vectorizer.fit_transform(self.documents)
-            except Exception as e:
-                print(f"Error building vectors: {e}")
-                self.vectors = None
+    def _tokenize(self, text: str) -> List[str]:
+        # Simple tokenization - split on non-alphanumeric and convert to lowercase
+        words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
+        return [word for word in words if len(word) > 2]  # Filter short words
+    
+    def _update_frequencies(self, content: str, doc_id: int):
+        words = self._tokenize(content)
+        word_counts = Counter(words)
+        
+        for word, count in word_counts.items():
+            self.word_frequencies[doc_id][word] = count
+            if count > 0:  # Word appears in this document
+                self.document_frequencies[word] += 1
 
     def add_document(self, content: str, metadata: Dict = None):
         with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
+            cursor = conn.execute(
                 "INSERT INTO documents (content, metadata) VALUES (?, ?)",
                 (content, json.dumps(metadata) if metadata else None)
             )
+            doc_id = cursor.lastrowid
         
-        self.documents.append(content)
+        self.documents.append((doc_id, content))
+        self._update_frequencies(content, doc_id)
+
+    def _calculate_tfidf_score(self, query_words: List[str], doc_id: int, content: str) -> float:
+        """Calculate TF-IDF score for a document given query words"""
+        if not query_words:
+            return 0.0
         
-        # Rebuild vectors every 10 documents for efficiency
-        if len(self.documents) % 10 == 0:
-            self._rebuild_vectors()
+        score = 0.0
+        doc_word_count = sum(self.word_frequencies[doc_id].values())
+        total_docs = len(self.documents)
+        
+        for word in query_words:
+            if word in self.word_frequencies[doc_id]:
+                # Term Frequency (TF)
+                tf = self.word_frequencies[doc_id][word] / doc_word_count
+                
+                # Inverse Document Frequency (IDF)
+                df = self.document_frequencies.get(word, 0)
+                if df > 0:
+                    idf = math.log(total_docs / df)
+                else:
+                    idf = 0
+                
+                score += tf * idf
+        
+        return score
 
     def search_similar(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
+        """Hybrid search combining TF-IDF and keyword matching"""
         if not self.documents:
             return []
         
-        if self.vectors is None:
-            self._rebuild_vectors()
+        query_words = self._tokenize(query)
+        if not query_words:
+            return []
         
-        if self.vectors is not None:
-            try:
-                # Vector similarity search
-                query_vector = self.vectorizer.transform([query])
-                similarities = np.dot(self.vectors, query_vector.T).toarray().flatten()
-                
-                # Get top results
-                top_indices = np.argsort(similarities)[-k:][::-1]
-                
-                results = []
-                for i in top_indices:
-                    if similarities[i] > 0.01:  # Minimum similarity threshold
-                        results.append({
-                            "content": self.documents[i],
-                            "score": float(similarities[i]),
-                            "metadata": self._get_metadata(i),
-                            "search_type": "vector"
-                        })
-                
-                # If vector search returns results, use them
-                if results:
-                    return results[:k]
-                    
-            except Exception as e:
-                print(f"Vector search failed: {e}")
+        results = []
         
-        # Fall back to keyword search
-        return self.keyword_search(query, k)
+        for doc_id, content in self.documents:
+            # Calculate TF-IDF score
+            tfidf_score = self._calculate_tfidf_score(query_words, doc_id, content)
+            
+            # Calculate keyword match score
+            keyword_score = self._calculate_keyword_score(query_words, content)
+            
+            # Combined score (weighted)
+            combined_score = (0.7 * tfidf_score) + (0.3 * keyword_score)
+            
+            if combined_score > 0:
+                results.append({
+                    "content": content,
+                    "score": combined_score,
+                    "metadata": self._get_metadata(doc_id),
+                    "search_type": "hybrid"
+                })
+        
+        # Sort by score and return top k
+        results.sort(key=lambda x: x['score'], reverse=True)
+        return results[:k]
+
+    def _calculate_keyword_score(self, query_words: List[str], content: str) -> float:
+        """Simple keyword matching score"""
+        content_lower = content.lower()
+        matches = sum(1 for word in query_words if word in content_lower)
+        return matches / len(query_words) if query_words else 0
 
     def keyword_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        query_words = re.findall(r'\w+', query.lower())
+        """Simple keyword-based search"""
+        if not self.documents:
+            return []
         
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.cursor()
-            
-            # Build search conditions for each word
-            conditions = []
-            params = []
-            for word in query_words:
-                if len(word) > 2:  # Only search for words longer than 2 chars
-                    conditions.append("LOWER(content) LIKE ?")
-                    params.append(f"%{word}%")
-            
-            if not conditions:
-                return []
-            
-            query_sql = f"""
-                SELECT content, metadata
-                FROM documents 
-                WHERE {' AND '.join(conditions)}
-                LIMIT ?
-            """
-            params.append(k)
-            
-            cursor.execute(query_sql, params)
-            results = cursor.fetchall()
-            
-            return [
-                {
-                    "content": row[0],
-                    "metadata": json.loads(row[1]) if row[1] else {},
-                    "score": 1.0,
+        query_words = self._tokenize(query)
+        results = []
+        
+        for doc_id, content in self.documents:
+            score = self._calculate_keyword_score(query_words, content)
+            if score > 0:
+                results.append({
+                    "content": content,
+                    "score": score,
+                    "metadata": self._get_metadata(doc_id),
                     "search_type": "keyword"
-                }
-                for row in results
-            ]
-
-    def hybrid_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        # Get both vector and keyword results
-        vector_results = self.search_similar(query, k // 2 + 1)
-        keyword_results = self.keyword_search(query, k // 2 + 1)
-        
-        # Combine and deduplicate
-        seen_content = set()
-        combined_results = []
-        
-        for result in vector_results + keyword_results:
-            content_hash = hash(result["content"])
-            if content_hash not in seen_content:
-                seen_content.add(content_hash)
-                combined_results.append(result)
-        
-        return combined_results[:k]
-
-    def _get_metadata(self, doc_index: int) -> Dict[str, Any]:
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute(
-                "SELECT metadata FROM documents WHERE id = ?", 
-                (doc_index + 1,)
-            )
-            row = cursor.fetchone()
-            return json.loads(row[0]) if row and row[0] else {}
-
-    def list_documents(self) -> Dict[str, Any]:
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("SELECT content, metadata FROM documents")
-            documents = []
-            for row in cursor.fetchall():
-                documents.append({
-                    "content": row[0],
-                    "metadata": json.loads(row[1]) if row[1] else {}
                 })
-            
-            return {
-                "documents": documents,
-                "total_count": len(documents),
-                "vectorized": self.vectors is not None
-            }
+        
+        results.sort(key=lambda x: x['score'], reverse=True)
+        return results[:k]
+
+    def vector_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
+        """TF-IDF vector search (lightweight implementation)"""
+        return self.search_similar(query, k)
+
+    def _get_metadata(self, doc_id: int) -> Dict:
+        """Get metadata for a document"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.execute("SELECT metadata FROM documents WHERE id = ?", (doc_id,))
+                row = cursor.fetchone()
+                if row and row[0]:
+                    return json.loads(row[0])
+        except:
+            pass
+        return {}
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Get search engine statistics"""
+        return {
+            "total_documents": len(self.documents),
+            "unique_words": len(self.document_frequencies),
+            "database_path": self.db_path
+        }
