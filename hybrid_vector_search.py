@@ -2,49 +2,57 @@ import sqlite3
 import json
 import re
 import math
-import numpy as np
 from collections import Counter, defaultdict
 from typing import List, Dict, Any, Optional
 
-try:
-    import tensorflow as tf
-    import tensorflow_hub as hub
-    TF_AVAILABLE = True
-except ImportError:
-    TF_AVAILABLE = False
+# Don't import TensorFlow at module level - import only when needed
 
 class TensorFlowEmbeddings:
     def __init__(self):
-        if not TF_AVAILABLE:
-            self.model = None
-            return
-            
-        # Use Universal Sentence Encoder Lite (only ~20MB)
+        # Don't load TensorFlow during initialization
         self.model_url = "https://tfhub.dev/google/universal-sentence-encoder-lite/2"
         self.model = None
         self.embedding_size = 512
+        self._tf_loaded = False
+    
+    def _load_tensorflow(self):
+        """Load TensorFlow only when needed"""
+        if self._tf_loaded:
+            return
         
         try:
+            import tensorflow as tf
+            import tensorflow_hub as hub
             # Load the lightweight model
             self.model = hub.load(self.model_url)
             print("✅ Loaded TensorFlow Lite embedding model (~20MB)")
+            self._tf_loaded = True
+        except ImportError:
+            print("⚠️ TensorFlow not available - using fallback")
+            self._tf_loaded = True
         except Exception as e:
             print(f"⚠️ Failed to load embedding model: {e}")
-            self.model = None
+            self._tf_loaded = True
     
-    def encode(self, text: str) -> np.ndarray:
+    def encode(self, text: str):
         """Generate embeddings using TensorFlow Lite"""
+        # Load TensorFlow only when actually needed
+        self._load_tensorflow()
+        
         if not self.model:
-            return np.zeros(self.embedding_size)
+            # Return None instead of numpy array to avoid numpy import at startup
+            return None
         
         try:
+            import tensorflow as tf
+            import numpy as np
             # Preprocess text for the model
             text_input = tf.constant([text])
             embeddings = self.model(text_input)
             return embeddings.numpy()[0]
         except Exception as e:
             print(f"⚠️ Embedding generation failed: {e}")
-            return np.zeros(self.embedding_size)
+            return None
 
 class HybridVectorSearch:
     def __init__(self):
@@ -95,12 +103,12 @@ class HybridVectorSearch:
     def add_document(self, content: str, metadata: Dict = None):
         # Generate TensorFlow embedding
         embedding_blob = None
-        if self.embedding_model.model:
-            try:
-                embedding = self.embedding_model.encode(content)
+        try:
+            embedding = self.embedding_model.encode(content)
+            if embedding is not None:
                 embedding_blob = embedding.tobytes()
-            except Exception as e:
-                print(f"⚠️ Failed to generate embedding: {e}")
+        except Exception as e:
+            print(f"⚠️ Failed to generate embedding: {e}")
         
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
@@ -148,8 +156,15 @@ class HybridVectorSearch:
         """Ultimate hybrid search using TensorFlow embeddings"""
         try:
             query_embedding = self.embedding_model.encode(query)
+            if query_embedding is None:
+                # Fall back to TF-IDF if embeddings failed
+                return self._tfidf_keyword_search(query, k)
+                
             query_words = self._tokenize(query)
             results = []
+            
+            # Import numpy only when we actually need it
+            import numpy as np
             
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.execute("SELECT id, content, embedding, metadata FROM documents")
@@ -250,12 +265,14 @@ class HybridVectorSearch:
 
     def vector_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
         """Pure vector similarity search using TensorFlow"""
-        if not self.embedding_model.model:
-            # Fall back to TF-IDF if no embeddings available
-            return self.search_similar(query, k)
-        
         try:
             query_embedding = self.embedding_model.encode(query)
+            if query_embedding is None:
+                # Fall back to TF-IDF if no embeddings available
+                return self.search_similar(query, k)
+            
+            # Import numpy only when we actually need it
+            import numpy as np
             results = []
             
             with sqlite3.connect(self.db_path) as conn:
