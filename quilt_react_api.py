@@ -125,13 +125,28 @@ class QuiltDeployment:
 
 deployer = QuiltDeployment()
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files if directory exists
+import os
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def root():
-    """Serve the main HTML page"""
-    return FileResponse('static/index.html')
+    """Serve the main HTML page or API info"""
+    if os.path.exists("static/index.html"):
+        return FileResponse('static/index.html')
+    else:
+        return {
+            "message": "Quilt API is running",
+            "version": "1.0.0",
+            "endpoints": {
+                "api_status": "/api",
+                "search": "/search?query=<query>&search_type=<hybrid|vector|keyword>",
+                "deploy": "/deploy",
+                "deployments": "/deployments/<user>",
+                "stats": "/stats"
+            }
+        }
 
 @app.get("/api")
 async def api_status():

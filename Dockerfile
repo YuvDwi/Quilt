@@ -9,6 +9,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy Python backend files
 COPY *.py ./
 
+# Copy static directory
+COPY static/ ./static/
+
 # Expose port
 EXPOSE 8005
 
