@@ -7,11 +7,12 @@ import json
 import sqlite3
 import re
 from typing import List, Dict, Any, Optional
+from hybrid_vector_search import HybridVectorSearch
 
 class EnhancedHTMLParser:
     def __init__(self):
+        self.search_engine = HybridVectorSearch()
         self.db_path = "search_data.db"
-        self.init_database()
     
     def init_database(self):
         with sqlite3.connect(self.db_path) as conn:
@@ -26,11 +27,7 @@ class EnhancedHTMLParser:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_content ON documents(content)")
     
     def add_document(self, content: str, metadata: Dict = None):
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                "INSERT INTO documents (content, metadata) VALUES (?, ?)",
-                (content, json.dumps(metadata) if metadata else None)
-            )
+        self.search_engine.add_document(content, metadata)
     
     def parse_html_file(self, file_path: str) -> List[Dict[str, str]]:
         try:
@@ -95,75 +92,10 @@ class EnhancedHTMLParser:
         return None
     
     def search_similar(self, query_text: str, k: int = 5) -> List[Dict[str, Any]]:
-        query_text = query_text.replace("\n", " ").strip()
-        query_vector = self.model.encode(query_text)
-        
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("SELECT content, embedding, metadata FROM documents")
-            results = []
-            
-            for row in cursor.fetchall():
-                content, embedding_bytes, metadata = row
-                stored_vector = np.frombuffer(embedding_bytes, dtype=np.float32)
-                
-                similarity = np.dot(query_vector, stored_vector)
-                results.append({
-                    'content': content,
-                    'similarity_score': float(similarity),
-                    'metadata': json.loads(metadata) if metadata else {}
-                })
-        
-        results.sort(key=lambda x: x['similarity_score'], reverse=True)
-        return results[:k]
+        return self.search_engine.search_similar(query_text, k)
     
     def hybrid_search(self, query_text: str, k: int = 5) -> List[Dict[str, Any]]:
-        query_text = query_text.replace("\n", " ").strip().lower()
-        keywords = re.findall(r'\b\w+\b', query_text)
-        vector_results = self.search_similar(query_text, k=k*2)
-        
-        scored_results = []
-        for result in vector_results:
-            content_lower = result['content'].lower()
-            
-            keyword_matches = sum(1 for keyword in keywords if keyword in content_lower)
-            keyword_score = keyword_matches / len(keywords) if keywords else 0
-            
-            phrase_bonus = 0.3 if query_text in content_lower else 0
-            
-            order_bonus = 0
-            if len(keywords) > 1:
-                for i in range(len(keywords) - 1):
-                    if keywords[i] + " " + keywords[i + 1] in content_lower:
-                        order_bonus += 0.1
-            
-            hybrid_score = (result['similarity_score'] * 0.6 + 
-                           keyword_score * 0.3 + 
-                           phrase_bonus + 
-                           order_bonus)
-            
-            scored_results.append({
-                **result,
-                'keyword_score': keyword_score,
-                'phrase_bonus': phrase_bonus,
-                'order_bonus': order_bonus,
-                'hybrid_score': hybrid_score
-            })
-        
-        scored_results.sort(key=lambda x: x['hybrid_score'], reverse=True)
-        
-        final_results = []
-        for i, result in enumerate(scored_results[:k]):
-            final_results.append({
-                "rank": i + 1,
-                "content": result['content'],
-                "similarity_score": result['similarity_score'],
-                "hybrid_score": round(result['hybrid_score'], 3),
-                "keyword_matches": result['keyword_score'],
-                "exact_phrase": bool(result['phrase_bonus'] > 0),
-                "metadata": result['metadata']
-            })
-        
-        return final_results
+        return self.search_engine.hybrid_search(query_text, k)
     
     def export_to_json(self, pairs: List[Dict[str, str]], output_file: str = None) -> str:
         json_str = json.dumps(pairs, indent=2, ensure_ascii=False)
@@ -176,16 +108,15 @@ class EnhancedHTMLParser:
         return json_str
     
     def get_database_stats(self) -> Dict[str, Any]:
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute("SELECT COUNT(*) FROM documents")
-            total_docs = cursor.fetchone()[0]
-            
-            cursor = conn.execute("SELECT COUNT(*) FROM documents WHERE metadata LIKE '%html_section%'")
-            html_sections = cursor.fetchone()[0]
+        stats = self.search_engine.list_documents()
+        
+        html_sections = sum(1 for doc in stats['documents'] 
+                           if doc.get('metadata', {}).get('type') == 'html_section')
         
         return {
-            'total_documents': total_docs,
+            'total_documents': stats['total_count'],
             'html_sections': html_sections,
+            'vectorized': stats['vectorized'],
             'database_path': self.db_path
         }
 

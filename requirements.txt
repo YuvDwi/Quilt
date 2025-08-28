@@ -4,3 +4,5 @@ PyJWT
 requests
 beautifulsoup4
 lxml
+scikit-learn
+numpy

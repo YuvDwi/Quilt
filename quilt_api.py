@@ -8,11 +8,11 @@ import sqlite3
 from datetime import datetime
 import os
 
-from lightweight_search import LightweightSearchEngine
+from hybrid_vector_search import HybridVectorSearch
 
 app = FastAPI(title="Quilt API", description="Centralized vector database for web content")
 
-search_engine = LightweightSearchEngine()
+search_engine = HybridVectorSearch()
 
 QUILT_DB_PATH = "quilt_repositories.db"
 
