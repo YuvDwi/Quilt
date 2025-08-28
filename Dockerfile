@@ -16,5 +16,5 @@ COPY static/ ./static/
 EXPOSE $PORT
 EXPOSE 8005
 
-# Start the API only
-CMD ["python3", "quilt_react_api.py"]
+# Start the simple API for testing
+CMD ["python3", "simple_api.py"]
