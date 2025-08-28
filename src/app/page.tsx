@@ -77,8 +77,28 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative pt-24 pb-20 overflow-hidden">
+        {/* Simple Maze Grid Background */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-px">
+            {Array.from({ length: 240 }).map((_, i) => (
+              <div key={i} className="border border-gray-600"></div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Moving Purple Block */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div 
+            className="w-6 h-6 bg-purple-500 rounded transition-all duration-1000 ease-in-out"
+            style={{
+              position: 'absolute',
+              animation: 'moveThroughMaze 20s infinite linear'
+            }}
+          ></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-left">
@@ -115,58 +135,8 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Right Visualization */}
-            <div className="hidden lg:block relative">
-              <div className="relative w-full h-96 overflow-hidden">
-                {/* Animated Grid background */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="grid grid-cols-12 grid-rows-12 h-full w-full gap-px animate-pulse">
-                    {Array.from({ length: 144 }).map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="border border-gray-600 transition-all duration-1000"
-                        style={{
-                          animationDelay: `${i * 50}ms`,
-                          animationDuration: '3s'
-                        }}
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Moving grid lines */}
-                <div className="absolute inset-0">
-                  <div className="absolute w-full h-px bg-purple-500/30 animate-bounce" style={{ top: '20%', animationDuration: '4s' }}></div>
-                  <div className="absolute w-full h-px bg-purple-500/30 animate-bounce" style={{ top: '60%', animationDuration: '3s', animationDelay: '1s' }}></div>
-                  <div className="absolute h-full w-px bg-purple-500/30 animate-bounce" style={{ left: '30%', animationDuration: '5s', animationDelay: '0.5s' }}></div>
-                  <div className="absolute h-full w-px bg-purple-500/30 animate-bounce" style={{ left: '70%', animationDuration: '3.5s', animationDelay: '2s' }}></div>
-                </div>
-                
-                {/* Animated Purple geometric shapes */}
-                <div className="absolute inset-0">
-                  <div className="absolute top-8 right-16 w-16 h-32 bg-purple-500 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '2s' }}></div>
-                  <div className="absolute top-12 right-36 w-8 h-8 bg-purple-400 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '0.3s' }}></div>
-                  <div className="absolute top-24 right-8 w-12 h-12 bg-purple-600 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.8s' }}></div>
-                  <div className="absolute top-32 right-48 w-20 h-8 bg-purple-500 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '1.8s', animationDelay: '1.2s' }}></div>
-                  <div className="absolute top-48 right-20 w-24 h-16 bg-purple-400 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '2.2s', animationDelay: '0.5s' }}></div>
-                  <div className="absolute top-56 right-44 w-6 h-24 bg-purple-600 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '1.7s', animationDelay: '1.5s' }}></div>
-                  <div className="absolute top-64 right-12 w-16 h-6 bg-purple-500 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '2.8s', animationDelay: '0.2s' }}></div>
-                  <div className="absolute top-72 right-32 w-8 h-16 bg-purple-400 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '2.1s', animationDelay: '1.8s' }}></div>
-                  <div className="absolute bottom-12 right-16 w-12 h-20 bg-purple-600 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '1.9s', animationDelay: '0.7s' }}></div>
-                  <div className="absolute bottom-8 right-40 w-16 h-8 bg-purple-500 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '2.4s', animationDelay: '1.1s' }}></div>
-                  
-                  {/* Animated Green accent */}
-                  <div className="absolute bottom-16 right-8 w-4 h-4 bg-green-400 rounded transition-all duration-500 hover:scale-110 animate-pulse" style={{ animationDuration: '1.3s', animationDelay: '2.2s' }}></div>
-                </div>
-                
-                {/* Floating particles */}
-                <div className="absolute inset-0">
-                  <div className="absolute w-1 h-1 bg-purple-400 rounded-full animate-ping" style={{ top: '15%', left: '25%', animationDuration: '3s' }}></div>
-                  <div className="absolute w-1 h-1 bg-purple-500 rounded-full animate-ping" style={{ top: '45%', left: '75%', animationDuration: '2s', animationDelay: '1s' }}></div>
-                  <div className="absolute w-1 h-1 bg-purple-600 rounded-full animate-ping" style={{ top: '75%', left: '40%', animationDuration: '2.5s', animationDelay: '0.5s' }}></div>
-                </div>
-              </div>
-            </div>
+            {/* Right side placeholder for balance */}
+            <div className="hidden lg:block"></div>
           </div>
         </div>
       </section>
