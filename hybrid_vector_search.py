@@ -5,54 +5,10 @@ import math
 from collections import Counter, defaultdict
 from typing import List, Dict, Any, Optional
 
-# Don't import TensorFlow at module level - import only when needed
-
-class TensorFlowEmbeddings:
-    def __init__(self):
-        # Don't load TensorFlow during initialization
-        self.model_url = "https://tfhub.dev/google/universal-sentence-encoder-lite/2"
-        self.model = None
-        self.embedding_size = 512
-        self._tf_loaded = False
-    
-    def _load_tensorflow(self):
-        """Load TensorFlow only when needed"""
-        if self._tf_loaded:
-            return
-        
-        try:
-            import tensorflow as tf
-            import tensorflow_hub as hub
-            # Load the lightweight model
-            self.model = hub.load(self.model_url)
-            print("✅ Loaded TensorFlow Lite embedding model (~20MB)")
-            self._tf_loaded = True
-        except ImportError:
-            print("⚠️ TensorFlow not available - using fallback")
-            self._tf_loaded = True
-        except Exception as e:
-            print(f"⚠️ Failed to load embedding model: {e}")
-            self._tf_loaded = True
-    
-    def encode(self, text: str):
-        """Generate embeddings using TensorFlow Lite"""
-        # Load TensorFlow only when actually needed
-        self._load_tensorflow()
-        
-        if not self.model:
-            # Return None instead of numpy array to avoid numpy import at startup
-            return None
-        
-        try:
-            import tensorflow as tf
-            import numpy as np
-            # Preprocess text for the model
-            text_input = tf.constant([text])
-            embeddings = self.model(text_input)
-            return embeddings.numpy()[0]
-        except Exception as e:
-            print(f"⚠️ Embedding generation failed: {e}")
-            return None
+# Import Cohere embeddings only when needed
+def get_cohere_embeddings():
+    from cohere_embeddings import CohereEmbeddings
+    return CohereEmbeddings()
 
 class HybridVectorSearch:
     def __init__(self):
@@ -61,11 +17,28 @@ class HybridVectorSearch:
         self.word_frequencies = defaultdict(lambda: defaultdict(int))
         self.document_frequencies = defaultdict(int)
         
-        # Initialize TensorFlow embeddings
-        self.embedding_model = TensorFlowEmbeddings()
+        # Initialize Cohere embeddings lazily
+        self.embedding_model = None
         
         self.init_database()
         self._load_existing_documents()
+    
+    def get_embedding_model(self):
+        """Lazy initialization of Cohere embeddings"""
+        if self.embedding_model is None:
+            try:
+                self.embedding_model = get_cohere_embeddings()
+                print("✅ Cohere embeddings initialized")
+            except Exception as e:
+                print(f"⚠️ Cohere initialization failed: {e}")
+                # Create dummy embeddings for fallback
+                class DummyEmbeddings:
+                    def encode(self, text):
+                        return None
+                    def encode_query(self, text):
+                        return None
+                self.embedding_model = DummyEmbeddings()
+        return self.embedding_model
 
     def init_database(self):
         with sqlite3.connect(self.db_path) as conn:
@@ -101,10 +74,11 @@ class HybridVectorSearch:
                 self.document_frequencies[word] += 1
 
     def add_document(self, content: str, metadata: Dict = None):
-        # Generate TensorFlow embedding
+        # Generate Cohere embedding
         embedding_blob = None
         try:
-            embedding = self.embedding_model.encode(content)
+            embedding_model = self.get_embedding_model()
+            embedding = embedding_model.encode(content)
             if embedding is not None:
                 embedding_blob = embedding.tobytes()
         except Exception as e:
@@ -141,21 +115,24 @@ class HybridVectorSearch:
         return score
 
     def search_similar(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Advanced hybrid search: TensorFlow embeddings + TF-IDF + keywords"""
+        """Advanced hybrid search: Cohere embeddings + TF-IDF + keywords"""
         if not self.documents:
             return []
         
-        # Use TensorFlow embeddings if available
-        if self.embedding_model.model:
+        # Use Cohere embeddings if available
+        embedding_model = self.get_embedding_model()
+        if embedding_model.client:
             return self._hybrid_embedding_search(query, k)
         
         # Fall back to TF-IDF + keyword hybrid
         return self._tfidf_keyword_search(query, k)
 
     def _hybrid_embedding_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Ultimate hybrid search using TensorFlow embeddings"""
+        """Ultimate hybrid search using Cohere embeddings"""
         try:
-            query_embedding = self.embedding_model.encode(query)
+            embedding_model = self.get_embedding_model()
+            # Use encode_query for better query optimization
+            query_embedding = embedding_model.encode_query(query)
             if query_embedding is None:
                 # Fall back to TF-IDF if embeddings failed
                 return self._tfidf_keyword_search(query, k)
@@ -188,22 +165,23 @@ class HybridVectorSearch:
                     # Keyword score
                     keyword_score = self._calculate_keyword_score(query_words, content)
                     
-                    # Combined score (weighted: 60% vector, 25% TF-IDF, 15% keyword)
-                    combined_score = (0.6 * vector_score) + (0.25 * tfidf_score) + (0.15 * keyword_score)
+                    # Combined score (weighted: 70% vector, 20% TF-IDF, 10% keyword)
+                    # Higher weight on vector similarity since Cohere is very good
+                    combined_score = (0.7 * vector_score) + (0.2 * tfidf_score) + (0.1 * keyword_score)
                     
                     if combined_score > 0.1:
                         results.append({
                             "content": content,
                             "score": float(combined_score),
                             "metadata": json.loads(metadata_str) if metadata_str else {},
-                            "search_type": "hybrid_tensorflow"
+                            "search_type": "hybrid_cohere"
                         })
             
             results.sort(key=lambda x: x['score'], reverse=True)
             return results[:k]
             
         except Exception as e:
-            print(f"⚠️ TensorFlow embedding search failed: {e}")
+            print(f"⚠️ Cohere embedding search failed: {e}")
             return self._tfidf_keyword_search(query, k)
 
     def _tfidf_keyword_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
@@ -264,9 +242,10 @@ class HybridVectorSearch:
         return results[:k]
 
     def vector_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Pure vector similarity search using TensorFlow"""
+        """Pure vector similarity search using Cohere"""
         try:
-            query_embedding = self.embedding_model.encode(query)
+            embedding_model = self.get_embedding_model()
+            query_embedding = embedding_model.encode_query(query)
             if query_embedding is None:
                 # Fall back to TF-IDF if no embeddings available
                 return self.search_similar(query, k)
@@ -294,7 +273,7 @@ class HybridVectorSearch:
                                 "content": content,
                                 "score": float(similarity),
                                 "metadata": json.loads(metadata_str) if metadata_str else {},
-                                "search_type": "vector_tensorflow"
+                                "search_type": "vector_cohere"
                             })
             
             results.sort(key=lambda x: x['score'], reverse=True)
@@ -318,9 +297,11 @@ class HybridVectorSearch:
 
     def get_stats(self) -> Dict[str, Any]:
         """Get search engine statistics"""
+        embedding_model = self.get_embedding_model()
         return {
             "total_documents": len(self.documents),
             "unique_words": len(self.document_frequencies),
             "database_path": self.db_path,
-            "embedding_model": "TensorFlow Universal Sentence Encoder Lite" if self.embedding_model.model else "None"
+            "embedding_model": "Cohere embed-english-light-v3.0" if embedding_model.client else "TF-IDF fallback",
+            "cohere_api_key_set": bool(embedding_model.api_key)
         }
