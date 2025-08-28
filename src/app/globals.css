@@ -95,39 +95,51 @@ body {
 
 /* Block Animations */
 .block-1 {
-  animation: moveBlock1 8s linear infinite;
+  animation: moveBlock1 4s linear infinite;
 }
 
 .block-2 {
-  animation: moveBlock2 12s linear infinite;
+  animation: moveBlock2 4s linear infinite;
 }
 
 .block-3 {
-  animation: moveBlock3 10s linear infinite;
+  animation: moveBlock3 4s linear infinite;
 }
 
 @keyframes moveBlock1 {
   0% { transform: translate(0, 0); }
-  25% { transform: translate(400%, 0); }
-  50% { transform: translate(400%, 300%); }
-  75% { transform: translate(0, 300%); }
+  12.5% { transform: translate(400%, 0); }
+  25% { transform: translate(400%, 300%); }
+  37.5% { transform: translate(800%, 300%); }
+  50% { transform: translate(800%, 600%); }
+  62.5% { transform: translate(200%, 600%); }
+  75% { transform: translate(200%, 100%); }
+  87.5% { transform: translate(0, 100%); }
   100% { transform: translate(0, 0); }
 }
 
 @keyframes moveBlock2 {
   0% { transform: translate(1900%, 0); }
-  25% { transform: translate(1900%, 500%); }
-  50% { transform: translate(800%, 500%); }
-  75% { transform: translate(800%, 200%); }
+  12.5% { transform: translate(1900%, 400%); }
+  25% { transform: translate(1500%, 400%); }
+  37.5% { transform: translate(1500%, 800%); }
+  50% { transform: translate(1000%, 800%); }
+  62.5% { transform: translate(1000%, 200%); }
+  75% { transform: translate(1600%, 200%); }
+  87.5% { transform: translate(1600%, 0); }
   100% { transform: translate(1900%, 0); }
 }
 
 @keyframes moveBlock3 {
-  0% { transform: translate(1000%, 1100%); }
-  25% { transform: translate(200%, 1100%); }
-  50% { transform: translate(200%, 200%); }
-  75% { transform: translate(1600%, 200%); }
-  100% { transform: translate(1000%, 1100%); }
+  0% { transform: translate(500%, 1100%); }
+  12.5% { transform: translate(500%, 700%); }
+  25% { transform: translate(900%, 700%); }
+  37.5% { transform: translate(900%, 300%); }
+  50% { transform: translate(300%, 300%); }
+  62.5% { transform: translate(300%, 900%); }
+  75% { transform: translate(1200%, 900%); }
+  87.5% { transform: translate(1200%, 1100%); }
+  100% { transform: translate(500%, 1100%); }
 }
 
 
