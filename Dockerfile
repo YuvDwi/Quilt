@@ -12,7 +12,8 @@ COPY *.py ./
 # Copy static directory
 COPY static/ ./static/
 
-# Expose port
+# Expose port (Railway uses PORT env var)
+EXPOSE $PORT
 EXPOSE 8005
 
 # Start the API only
