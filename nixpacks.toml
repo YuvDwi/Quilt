@@ -4,7 +4,7 @@ nixPkgs = ["python311", "python311Packages.pip"]
 [phases.install]
 cmds = [
     "python3 -m pip install --upgrade pip",
-    "python3 -m pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt"
+    "python3 -m pip install requests"
 ]
 
 [start]
