@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'  # Prevents startup issues
+
 import requests
 import json
 from fastapi import FastAPI, HTTPException, Depends
