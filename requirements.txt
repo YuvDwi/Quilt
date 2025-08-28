@@ -1,8 +1,8 @@
 fastapi
-uvicorn
-PyJWT
+uvicorn[standard]
 requests
 beautifulsoup4
 lxml
 scikit-learn
 numpy
+pydantic

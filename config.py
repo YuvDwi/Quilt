@@ -16,3 +16,4 @@ REQUIRED_PERMISSIONS = {
 SUBSCRIBE_TO_EVENTS = [
     "push"
 ]
+
