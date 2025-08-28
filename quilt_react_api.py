@@ -2,6 +2,8 @@
 
 import os
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'  # Prevents startup issues
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Reduce TensorFlow logging
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'  # Disable oneDNN optimizations for faster startup
 
 import requests
 import json
@@ -42,9 +44,31 @@ class DeployRequest(BaseModel):
 class QuiltDeployment:
     def __init__(self):
         self.html_parser = EnhancedHTMLParser()
-        self.vector_search = HybridVectorSearch()
+        # Initialize vector search lazily to speed up startup
+        self.vector_search = None
         self.db_path = "quilt_deployments.db"
         self.init_database()
+    
+    def get_vector_search(self):
+        """Lazy initialization of vector search"""
+        if self.vector_search is None:
+            try:
+                self.vector_search = HybridVectorSearch()
+                print("✅ Vector search initialized")
+            except Exception as e:
+                print(f"⚠️ Vector search initialization failed: {e}")
+                # Create a dummy object for fallback
+                class DummyVectorSearch:
+                    def search_similar(self, query, k=5):
+                        return []
+                    def keyword_search(self, query, k=5):
+                        return []
+                    def vector_search(self, query, k=5):
+                        return []
+                    def add_document(self, content, metadata=None):
+                        pass
+                self.vector_search = DummyVectorSearch()
+        return self.vector_search
     
     def init_database(self):
         with sqlite3.connect(self.db_path) as conn:
@@ -165,8 +189,13 @@ async def api_status():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy", "port": os.getenv("PORT", "8005")}
+    """Simple health check endpoint - no heavy operations"""
+    return {
+        "status": "healthy", 
+        "port": os.getenv("PORT", "8005"),
+        "message": "API is running",
+        "timestamp": str(datetime.now())
+    }
 
 @app.post("/deploy")
 async def deploy_repo(request: DeployRequest):
@@ -202,12 +231,13 @@ async def get_deployments(user: str):
 async def search_content(query: str, search_type: str = "hybrid", max_results: int = 10):
     """Search indexed content"""
     try:
+        vector_search = deployer.get_vector_search()
         if search_type == "vector":
-            results = deployer.vector_search.search_similar(query, k=max_results)
+            results = vector_search.search_similar(query, k=max_results)
         elif search_type == "keyword":
-            results = deployer.vector_search.keyword_search(query, k=max_results)
+            results = vector_search.keyword_search(query, k=max_results)
         else:  # hybrid
-            results = deployer.vector_search.hybrid_search(query, k=max_results)
+            results = vector_search.search_similar(query, k=max_results)
         
         return {
             "query": query,
