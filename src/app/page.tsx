@@ -4,84 +4,13 @@ import { useState, useEffect } from 'react'
 import { Github, Database, Zap, Search, ArrowRight, ExternalLink, Play, ChevronRight, Globe, Cpu, Network } from 'lucide-react'
 import Link from 'next/link'
 
-interface Block {
-  x: number
-  y: number
-  vx: number
-  vy: number
-  id: string
-  color: string
-}
-
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-  const [blocks, setBlocks] = useState<Block[]>([
-    { x: 2, y: 3, vx: 1, vy: 0, id: 'block1', color: 'bg-purple-500' },
-    { x: 15, y: 1, vx: 0, vy: 1, id: 'block2', color: 'bg-purple-400' },
-    { x: 8, y: 6, vx: -1, vy: 0, id: 'block3', color: 'bg-purple-600' }
-  ])
-
-  const GRID_COLS = 20
-  const GRID_ROWS = 12
 
   useEffect(() => {
     setIsVisible(true)
-    
-    const moveBlocks = () => {
-      setBlocks(prevBlocks => {
-        return prevBlocks.map(block => {
-          let newX = block.x + block.vx
-          let newY = block.y + block.vy
-          let newVx = block.vx
-          let newVy = block.vy
-
-          // Wall collision - repel from edges
-          if (newX <= 0 || newX >= GRID_COLS - 1) {
-            newVx = -newVx
-            newX = Math.max(1, Math.min(GRID_COLS - 2, newX))
-          }
-          if (newY <= 0 || newY >= GRID_ROWS - 1) {
-            newVy = -newVy
-            newY = Math.max(1, Math.min(GRID_ROWS - 2, newY))
-          }
-
-          // Check collision with other blocks
-          const otherBlocks = prevBlocks.filter(b => b.id !== block.id)
-          for (const other of otherBlocks) {
-            const dx = newX - other.x
-            const dy = newY - other.y
-            const distance = Math.sqrt(dx * dx + dy * dy)
-            
-            if (distance < 2) { // Collision detected
-              // Repel in opposite directions
-              if (Math.abs(dx) > Math.abs(dy)) {
-                newVx = dx > 0 ? 1 : -1
-                newVy = 0
-              } else {
-                newVx = 0
-                newVy = dy > 0 ? 1 : -1
-              }
-              // Push apart
-              newX = block.x + newVx
-              newY = block.y + newVy
-            }
-          }
-
-          return {
-            ...block,
-            x: newX,
-            y: newY,
-            vx: newVx,
-            vy: newVy
-          }
-        })
-      })
-    }
-
-    const interval = setInterval(moveBlocks, 300) // Move every 300ms
-    return () => clearInterval(interval)
-  }, [GRID_COLS, GRID_ROWS])
+  }, [])
 
   const handleGitHubLogin = () => {
     setIsLoading(true)
@@ -147,80 +76,47 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section - Full Screen */}
-      <section className="relative h-screen overflow-hidden">
-        {/* Square Grid Background with Glow */}
-        <div className="absolute inset-0">
-          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-1 p-2">
-            {Array.from({ length: GRID_COLS * GRID_ROWS }).map((_, i) => (
-              <div 
-                key={i} 
-                className="border border-purple-500/20 bg-purple-900/5 rounded-sm glow-square"
-                style={{ aspectRatio: '1' }}
-              ></div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Physics-based Blocks */}
-        <div className="absolute inset-0 p-2">
-          <div className="grid grid-cols-20 grid-rows-12 h-full w-full gap-1">
-            {blocks.map(block => (
-              <div
-                key={block.id}
-                className={`${block.color} rounded-sm shadow-lg transition-all duration-300 ease-linear glow-block`}
-                style={{
-                  gridColumn: block.x + 1,
-                  gridRow: block.y + 1,
-                  aspectRatio: '1'
-                }}
-              ></div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Content Overlay */}
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="grid lg:grid-cols-2 gap-12 items-center h-full">
-              {/* Left Content */}
-              <div className="text-left bg-black/20 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-8 tracking-tight leading-tight">
-                  Internet Infrastructure,{' '}
-                  <span className="text-purple-400">
-                    Now For LLMs
-                  </span>
-                </h1>
-                
-                <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-2xl">
-                  Today's web is human-first. Search engines, browsers, and content all assume people are on the other end. 
-                  But LLMs need context, structure, and meaning — not buttons and pictures.
-                </p>
-            
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={handleGitHubLogin}
-                    disabled={isLoading}
-                    className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center space-x-2"
-                  >
-                    <Github className="h-5 w-5" />
-                    <span>{isLoading ? 'Connecting...' : 'Get Started for Free'}</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  
-                  <button 
-                    onClick={handleViewDemo}
-                    className="border border-gray-600 text-white px-8 py-4 rounded-lg font-semibold hover:border-gray-500 transition-colors flex items-center space-x-2"
-                  >
-                    <span>Contact Sales</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div className="text-left">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-medium text-white mb-8 tracking-tight leading-tight">
+                Internet Infrastructure,{' '}
+                <span className="text-purple-400">
+                  Now For LLMs
+                </span>
+              </h1>
               
-              {/* Right side - Empty for grid visibility */}
-              <div className="hidden lg:block"></div>
+              <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-2xl">
+                Today's web is human-first. Search engines, browsers, and content all assume people are on the other end. 
+                But LLMs need context, structure, and meaning — not buttons and pictures.
+              </p>
+          
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={handleGitHubLogin}
+                  disabled={isLoading}
+                  className="bg-white text-black px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center space-x-2"
+                >
+                  <Github className="h-5 w-5" />
+                  <span>{isLoading ? 'Connecting...' : 'Get Started for Free'}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                
+                <button 
+                  onClick={handleViewDemo}
+                  className="border border-gray-600 text-white px-8 py-4 rounded-lg font-semibold hover:border-gray-500 transition-colors flex items-center space-x-2"
+                >
+                  <span>Contact Sales</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
             </div>
+            
+            {/* Right side placeholder for balance */}
+            <div className="hidden lg:block"></div>
           </div>
         </div>
       </section>
