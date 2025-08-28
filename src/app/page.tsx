@@ -77,26 +77,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        {/* 3D Quilt Grid Background */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="quilt-grid-container">
-            {Array.from({ length: 120 }).map((_, i) => {
-              const row = Math.floor(i / 15);
-              const col = i % 15;
-              const isEven = (row + col) % 2 === 0;
-              return (
-                <div
-                  key={i}
-                  className={`quilt-square ${isEven ? 'quilt-square-light' : 'quilt-square-dark'}`}
-                  style={{
-                    animationDelay: `${(row + col) * 0.1}s`,
-                  }}
-                ></div>
-              );
-            })}
-          </div>
-        </div>
+      <section className="relative pt-24 pb-20">
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
