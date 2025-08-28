@@ -11,8 +11,24 @@ from hybrid_vector_search import HybridVectorSearch
 
 class EnhancedHTMLParser:
     def __init__(self):
-        self.search_engine = HybridVectorSearch()
+        # Lazy initialization to speed up startup
+        self.search_engine = None
         self.db_path = "search_data.db"
+    
+    def get_search_engine(self):
+        """Lazy initialization of search engine"""
+        if self.search_engine is None:
+            try:
+                self.search_engine = HybridVectorSearch()
+                print("✅ HTML Parser: Search engine initialized")
+            except Exception as e:
+                print(f"⚠️ HTML Parser: Search engine initialization failed: {e}")
+                # Create a dummy object for fallback
+                class DummySearchEngine:
+                    def add_document(self, content, metadata=None):
+                        pass
+                self.search_engine = DummySearchEngine()
+        return self.search_engine
     
     def init_database(self):
         with sqlite3.connect(self.db_path) as conn:
@@ -27,7 +43,8 @@ class EnhancedHTMLParser:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_content ON documents(content)")
     
     def add_document(self, content: str, metadata: Dict = None):
-        self.search_engine.add_document(content, metadata)
+        search_engine = self.get_search_engine()
+        search_engine.add_document(content, metadata)
     
     def parse_html_file(self, file_path: str) -> List[Dict[str, str]]:
         try:
