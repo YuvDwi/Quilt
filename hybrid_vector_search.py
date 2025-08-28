@@ -7,10 +7,44 @@ from collections import Counter, defaultdict
 from typing import List, Dict, Any, Optional
 
 try:
-    from sentence_transformers import SentenceTransformer
-    EMBEDDINGS_AVAILABLE = True
+    import tensorflow as tf
+    import tensorflow_hub as hub
+    TF_AVAILABLE = True
 except ImportError:
-    EMBEDDINGS_AVAILABLE = False
+    TF_AVAILABLE = False
+
+class TensorFlowEmbeddings:
+    def __init__(self):
+        if not TF_AVAILABLE:
+            self.model = None
+            return
+            
+        # Use Universal Sentence Encoder Lite (only ~20MB)
+        self.model_url = "https://tfhub.dev/google/universal-sentence-encoder-lite/2"
+        self.model = None
+        self.embedding_size = 512
+        
+        try:
+            # Load the lightweight model
+            self.model = hub.load(self.model_url)
+            print("✅ Loaded TensorFlow Lite embedding model (~20MB)")
+        except Exception as e:
+            print(f"⚠️ Failed to load embedding model: {e}")
+            self.model = None
+    
+    def encode(self, text: str) -> np.ndarray:
+        """Generate embeddings using TensorFlow Lite"""
+        if not self.model:
+            return np.zeros(self.embedding_size)
+        
+        try:
+            # Preprocess text for the model
+            text_input = tf.constant([text])
+            embeddings = self.model(text_input)
+            return embeddings.numpy()[0]
+        except Exception as e:
+            print(f"⚠️ Embedding generation failed: {e}")
+            return np.zeros(self.embedding_size)
 
 class HybridVectorSearch:
     def __init__(self):
@@ -19,16 +53,8 @@ class HybridVectorSearch:
         self.word_frequencies = defaultdict(lambda: defaultdict(int))
         self.document_frequencies = defaultdict(int)
         
-        # Initialize ULTRA-lightweight embedding model (22.9MB)
-        self.model = None
-        if EMBEDDINGS_AVAILABLE:
-            try:
-                # Use the smallest possible model - only 22.9MB
-                self.model = SentenceTransformer('BAAI/bge-micro-v2')
-                print("✅ Loaded ultra-lightweight embedding model (22.9MB)")
-            except Exception as e:
-                print(f"⚠️ Failed to load embedding model: {e}")
-                self.model = None
+        # Initialize TensorFlow embeddings
+        self.embedding_model = TensorFlowEmbeddings()
         
         self.init_database()
         self._load_existing_documents()
@@ -54,9 +80,8 @@ class HybridVectorSearch:
                 self._update_frequencies(content, doc_id)
 
     def _tokenize(self, text: str) -> List[str]:
-        # Simple tokenization - split on non-alphanumeric and convert to lowercase
         words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
-        return [word for word in words if len(word) > 2]  # Filter short words
+        return [word for word in words if len(word) > 2]
     
     def _update_frequencies(self, content: str, doc_id: int):
         words = self._tokenize(content)
@@ -64,15 +89,15 @@ class HybridVectorSearch:
         
         for word, count in word_counts.items():
             self.word_frequencies[doc_id][word] = count
-            if count > 0:  # Word appears in this document
+            if count > 0:
                 self.document_frequencies[word] += 1
 
     def add_document(self, content: str, metadata: Dict = None):
-        # Generate embedding if model is available
+        # Generate TensorFlow embedding
         embedding_blob = None
-        if self.model:
+        if self.embedding_model.model:
             try:
-                embedding = self.model.encode(content)
+                embedding = self.embedding_model.encode(content)
                 embedding_blob = embedding.tobytes()
             except Exception as e:
                 print(f"⚠️ Failed to generate embedding: {e}")
@@ -88,7 +113,6 @@ class HybridVectorSearch:
         self._update_frequencies(content, doc_id)
 
     def _calculate_tfidf_score(self, query_words: List[str], doc_id: int, content: str) -> float:
-        """Calculate TF-IDF score for a document given query words"""
         if not query_words:
             return 0.0
         
@@ -98,30 +122,77 @@ class HybridVectorSearch:
         
         for word in query_words:
             if word in self.word_frequencies[doc_id]:
-                # Term Frequency (TF)
                 tf = self.word_frequencies[doc_id][word] / doc_word_count
-                
-                # Inverse Document Frequency (IDF)
                 df = self.document_frequencies.get(word, 0)
                 if df > 0:
                     idf = math.log(total_docs / df)
                 else:
                     idf = 0
-                
                 score += tf * idf
         
         return score
 
     def search_similar(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Advanced hybrid search with embeddings + TF-IDF + keywords"""
+        """Advanced hybrid search: TensorFlow embeddings + TF-IDF + keywords"""
         if not self.documents:
             return []
         
-        # If we have embeddings, use the advanced hybrid approach
-        if self.model:
+        # Use TensorFlow embeddings if available
+        if self.embedding_model.model:
             return self._hybrid_embedding_search(query, k)
         
         # Fall back to TF-IDF + keyword hybrid
+        return self._tfidf_keyword_search(query, k)
+
+    def _hybrid_embedding_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
+        """Ultimate hybrid search using TensorFlow embeddings"""
+        try:
+            query_embedding = self.embedding_model.encode(query)
+            query_words = self._tokenize(query)
+            results = []
+            
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.execute("SELECT id, content, embedding, metadata FROM documents")
+                
+                for row in cursor.fetchall():
+                    doc_id, content, embedding_blob, metadata_str = row
+                    
+                    # Vector similarity score
+                    vector_score = 0.0
+                    if embedding_blob:
+                        doc_embedding = np.frombuffer(embedding_blob, dtype=np.float32)
+                        # Cosine similarity
+                        similarity = np.dot(query_embedding, doc_embedding) / (
+                            np.linalg.norm(query_embedding) * np.linalg.norm(doc_embedding)
+                        )
+                        vector_score = max(0, similarity)  # Ensure non-negative
+                    
+                    # TF-IDF score
+                    tfidf_score = self._calculate_tfidf_score(query_words, doc_id, content)
+                    
+                    # Keyword score
+                    keyword_score = self._calculate_keyword_score(query_words, content)
+                    
+                    # Combined score (weighted: 60% vector, 25% TF-IDF, 15% keyword)
+                    combined_score = (0.6 * vector_score) + (0.25 * tfidf_score) + (0.15 * keyword_score)
+                    
+                    if combined_score > 0.1:
+                        results.append({
+                            "content": content,
+                            "score": float(combined_score),
+                            "metadata": json.loads(metadata_str) if metadata_str else {},
+                            "search_type": "hybrid_tensorflow"
+                        })
+            
+            results.sort(key=lambda x: x['score'], reverse=True)
+            return results[:k]
+            
+        except Exception as e:
+            print(f"⚠️ TensorFlow embedding search failed: {e}")
+            return self._tfidf_keyword_search(query, k)
+
+    def _tfidf_keyword_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
+        """Fallback TF-IDF + keyword search"""
         query_words = self._tokenize(query)
         if not query_words:
             return []
@@ -149,52 +220,6 @@ class HybridVectorSearch:
         # Sort by score and return top k
         results.sort(key=lambda x: x['score'], reverse=True)
         return results[:k]
-    
-    def _hybrid_embedding_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Ultimate hybrid search: embeddings + TF-IDF + keywords"""
-        try:
-            query_embedding = self.model.encode(query)
-            query_words = self._tokenize(query)
-            results = []
-            
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute("SELECT id, content, embedding, metadata FROM documents")
-                
-                for row in cursor.fetchall():
-                    doc_id, content, embedding_blob, metadata_str = row
-                    
-                    # Vector similarity score
-                    vector_score = 0.0
-                    if embedding_blob:
-                        doc_embedding = np.frombuffer(embedding_blob, dtype=np.float32)
-                        vector_score = np.dot(query_embedding, doc_embedding) / (
-                            np.linalg.norm(query_embedding) * np.linalg.norm(doc_embedding)
-                        )
-                    
-                    # TF-IDF score
-                    tfidf_score = self._calculate_tfidf_score(query_words, doc_id, content)
-                    
-                    # Keyword score
-                    keyword_score = self._calculate_keyword_score(query_words, content)
-                    
-                    # Combined score (weighted: 60% vector, 25% TF-IDF, 15% keyword)
-                    combined_score = (0.6 * vector_score) + (0.25 * tfidf_score) + (0.15 * keyword_score)
-                    
-                    if combined_score > 0.1:
-                        results.append({
-                            "content": content,
-                            "score": float(combined_score),
-                            "metadata": json.loads(metadata_str) if metadata_str else {},
-                            "search_type": "hybrid_embedding"
-                        })
-            
-            results.sort(key=lambda x: x['score'], reverse=True)
-            return results[:k]
-            
-        except Exception as e:
-            print(f"⚠️ Hybrid embedding search failed: {e}")
-            # Fall back to TF-IDF search
-            return self.search_similar(query, k)
 
     def _calculate_keyword_score(self, query_words: List[str], content: str) -> float:
         """Simple keyword matching score"""
@@ -224,13 +249,13 @@ class HybridVectorSearch:
         return results[:k]
 
     def vector_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Vector similarity search using ultra-lightweight embeddings"""
-        if not self.model:
+        """Pure vector similarity search using TensorFlow"""
+        if not self.embedding_model.model:
             # Fall back to TF-IDF if no embeddings available
             return self.search_similar(query, k)
         
         try:
-            query_embedding = self.model.encode(query)
+            query_embedding = self.embedding_model.encode(query)
             results = []
             
             with sqlite3.connect(self.db_path) as conn:
@@ -252,7 +277,7 @@ class HybridVectorSearch:
                                 "content": content,
                                 "score": float(similarity),
                                 "metadata": json.loads(metadata_str) if metadata_str else {},
-                                "search_type": "vector_embedding"
+                                "search_type": "vector_tensorflow"
                             })
             
             results.sort(key=lambda x: x['score'], reverse=True)
@@ -260,7 +285,7 @@ class HybridVectorSearch:
             
         except Exception as e:
             print(f"⚠️ Vector search failed: {e}")
-            return self.search_similar(query, k)  # Fall back to TF-IDF
+            return self.search_similar(query, k)
 
     def _get_metadata(self, doc_id: int) -> Dict:
         """Get metadata for a document"""
@@ -279,5 +304,6 @@ class HybridVectorSearch:
         return {
             "total_documents": len(self.documents),
             "unique_words": len(self.document_frequencies),
-            "database_path": self.db_path
+            "database_path": self.db_path,
+            "embedding_model": "TensorFlow Universal Sentence Encoder Lite" if self.embedding_model.model else "None"
         }
