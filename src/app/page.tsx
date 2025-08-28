@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Github, Database, Zap, Search, ArrowRight, ExternalLink, Play, ChevronRight, Globe, Cpu, Network } from 'lucide-react'
 import Link from 'next/link'
 
@@ -21,11 +21,8 @@ export default function Home() {
     { x: 15, y: 1, vx: 0, vy: 1, id: 'block2', color: 'bg-purple-400' },
     { x: 8, y: 6, vx: -1, vy: 0, id: 'block3', color: 'bg-purple-600' }
   ])
-  const animationRef = useRef<number>()
-
   const GRID_COLS = 20
   const GRID_ROWS = 12
-  const BLOCK_SIZE = 1
 
   useEffect(() => {
     setIsVisible(true)
