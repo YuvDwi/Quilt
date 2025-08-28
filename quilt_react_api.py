@@ -5,6 +5,8 @@ import requests
 import json
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import tempfile
 import zipfile
@@ -123,8 +125,16 @@ class QuiltDeployment:
 
 deployer = QuiltDeployment()
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 @app.get("/")
 async def root():
+    """Serve the main HTML page"""
+    return FileResponse('static/index.html')
+
+@app.get("/api")
+async def api_status():
     """API status endpoint"""
     return {
         "message": "Quilt React API",
