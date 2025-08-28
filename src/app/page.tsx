@@ -92,27 +92,27 @@ export default function Home() {
         
         {/* Moving Snake-like Blocks */}
         <div className="absolute inset-0 pointer-events-none">
-          {/* Snake 1 - Horizontal movement */}
+          {/* Snake 1 - Dynamic movement with axis changes */}
           <div 
             className="absolute bg-purple-500 snake-block"
             style={{
-              animation: 'snakeMoveHorizontal 20s infinite linear'
+              animation: 'snakeMoveDynamic1 8s infinite linear'
             }}
           ></div>
           
-          {/* Snake 2 - Perimeter loop */}
+          {/* Snake 2 - Dynamic movement with axis changes */}
           <div 
             className="absolute bg-purple-400 snake-block"
             style={{
-              animation: 'snakeMovePerimeter 40s infinite linear'
+              animation: 'snakeMoveDynamic2 10s infinite linear'
             }}
           ></div>
           
-          {/* Snake 3 - Vertical movement */}
+          {/* Snake 3 - Dynamic movement with axis changes */}
           <div 
             className="absolute bg-purple-600 snake-block"
             style={{
-              animation: 'snakeMoveVertical 30s infinite linear'
+              animation: 'snakeMoveDynamic3 12s infinite linear'
             }}
           ></div>
         </div>
