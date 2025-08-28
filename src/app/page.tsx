@@ -81,10 +81,10 @@ export default function Home() {
         {/* Grid Background with Moving Blocks */}
         <div className="absolute inset-0">
           {/* SVG Grid */}
-          <svg className="w-full h-full opacity-60" viewBox="0 0 400 240">
+          <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
             <defs>
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="1" opacity="0.6"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.7" opacity="0.4"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -116,7 +116,7 @@ export default function Home() {
                 
                 <p className="text-xl md:text-2xl text-gray-400 mb-12 leading-relaxed max-w-2xl">
                   Today's web is human-first. Search engines, browsers, and content all assume people are on the other end. 
-                  But LLMs need context, structure, and meaning — not buttons and pictures.
+                  But LLMs need context, structure, and meaning — not unpredictable pages, buttons and hidden information.
                 </p>
             
                 <div className="flex flex-col sm:flex-row gap-4">
