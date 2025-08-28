@@ -19,12 +19,13 @@ class HybridVectorSearch:
         self.word_frequencies = defaultdict(lambda: defaultdict(int))
         self.document_frequencies = defaultdict(int)
         
-        # Initialize lightweight sentence transformer
+        # Initialize ULTRA-lightweight embedding model (22.9MB)
         self.model = None
         if EMBEDDINGS_AVAILABLE:
             try:
-                self.model = SentenceTransformer('all-MiniLM-L3-v2')  # Only 61MB
-                print("✅ Loaded lightweight embedding model (61MB)")
+                # Use the smallest possible model - only 22.9MB
+                self.model = SentenceTransformer('BAAI/bge-micro-v2')
+                print("✅ Loaded ultra-lightweight embedding model (22.9MB)")
             except Exception as e:
                 print(f"⚠️ Failed to load embedding model: {e}")
                 self.model = None
@@ -112,11 +113,11 @@ class HybridVectorSearch:
         return score
 
     def search_similar(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Hybrid search combining embeddings, TF-IDF and keyword matching"""
+        """Advanced hybrid search with embeddings + TF-IDF + keywords"""
         if not self.documents:
             return []
         
-        # If we have embeddings, use vector + TF-IDF hybrid
+        # If we have embeddings, use the advanced hybrid approach
         if self.model:
             return self._hybrid_embedding_search(query, k)
         
@@ -150,7 +151,7 @@ class HybridVectorSearch:
         return results[:k]
     
     def _hybrid_embedding_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Advanced hybrid search using embeddings + TF-IDF + keywords"""
+        """Ultimate hybrid search: embeddings + TF-IDF + keywords"""
         try:
             query_embedding = self.model.encode(query)
             query_words = self._tokenize(query)
@@ -176,8 +177,8 @@ class HybridVectorSearch:
                     # Keyword score
                     keyword_score = self._calculate_keyword_score(query_words, content)
                     
-                    # Combined score (weighted: 50% vector, 30% TF-IDF, 20% keyword)
-                    combined_score = (0.5 * vector_score) + (0.3 * tfidf_score) + (0.2 * keyword_score)
+                    # Combined score (weighted: 60% vector, 25% TF-IDF, 15% keyword)
+                    combined_score = (0.6 * vector_score) + (0.25 * tfidf_score) + (0.15 * keyword_score)
                     
                     if combined_score > 0.1:
                         results.append({
@@ -223,7 +224,7 @@ class HybridVectorSearch:
         return results[:k]
 
     def vector_search(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
-        """Vector similarity search using lightweight embeddings"""
+        """Vector similarity search using ultra-lightweight embeddings"""
         if not self.model:
             # Fall back to TF-IDF if no embeddings available
             return self.search_similar(query, k)
