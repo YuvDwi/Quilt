@@ -1,12 +1,5 @@
 import type { Metadata } from 'next'
-import { Funnel_Display } from 'next/font/google'
 import './globals.css'
-
-const funnelDisplay = Funnel_Display({ 
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-funnel-display'
-})
 
 export const metadata: Metadata = {
   title: 'Quilt - Vector Database for the Web',
@@ -20,7 +13,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={funnelDisplay.className}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
           {children}
         </div>
