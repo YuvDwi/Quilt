@@ -78,50 +78,23 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 overflow-hidden">
-        {/* Simple Maze Grid Background */}
-        <div className="absolute inset-0">
-          <svg className="w-full h-full opacity-15">
-            <defs>
-              <pattern id="grid" width="5%" height="8.33%" patternUnits="userSpaceOnUse">
-                <rect width="100%" height="100%" fill="none" stroke="#6b7280" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-        
-        {/* Moving Purple Blocks */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="grid grid-cols-20 grid-rows-12 h-full w-full">
-            {/* First purple block */}
-            <div 
-              className="bg-purple-500 rounded-sm m-1 transition-all duration-1000 ease-in-out"
-              style={{
-                gridColumn: '1',
-                gridRow: '2',
-                animation: 'moveThroughMazeGrid1 20s infinite linear'
-              }}
-            ></div>
-            
-            {/* Second purple block */}
-            <div 
-              className="bg-purple-400 rounded-sm m-1 transition-all duration-1000 ease-in-out"
-              style={{
-                gridColumn: '10',
-                gridRow: '6',
-                animation: 'moveThroughMazeGrid2 25s infinite linear'
-              }}
-            ></div>
-            
-            {/* Third purple block */}
-            <div 
-              className="bg-purple-600 rounded-sm m-1 transition-all duration-1000 ease-in-out"
-              style={{
-                gridColumn: '15',
-                gridRow: '3',
-                animation: 'moveThroughMazeGrid3 30s infinite linear'
-              }}
-            ></div>
+        {/* 3D Quilt Grid Background */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="quilt-grid-container">
+            {Array.from({ length: 120 }).map((_, i) => {
+              const row = Math.floor(i / 15);
+              const col = i % 15;
+              const isEven = (row + col) % 2 === 0;
+              return (
+                <div
+                  key={i}
+                  className={`quilt-square ${isEven ? 'quilt-square-light' : 'quilt-square-dark'}`}
+                  style={{
+                    animationDelay: `${(row + col) * 0.1}s`,
+                  }}
+                ></div>
+              );
+            })}
           </div>
         </div>
         
