@@ -5,8 +5,8 @@
   "deploy": {
     "startCommand": "uvicorn quilt_react_api:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 300",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 600,
-    "healthcheckInterval": 30,
+    "healthcheckTimeout": 120,
+    "healthcheckInterval": 10,
     "restartPolicyType": "ON_FAILURE"
   }
 }

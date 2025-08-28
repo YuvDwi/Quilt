@@ -15,11 +15,18 @@ from pydantic import BaseModel
 import tempfile
 import zipfile
 from pathlib import Path
-from simple_parser import EnhancedHTMLParser
-from hybrid_vector_search import HybridVectorSearch
 import sqlite3
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+
+# Import heavy modules only when needed
+def get_html_parser():
+    from simple_parser import EnhancedHTMLParser
+    return EnhancedHTMLParser()
+
+def get_vector_search():
+    from hybrid_vector_search import HybridVectorSearch
+    return HybridVectorSearch()
 
 app = FastAPI(title="Quilt React API", description="Backend API for Quilt React deployment interface")
 
@@ -43,17 +50,34 @@ class DeployRequest(BaseModel):
 
 class QuiltDeployment:
     def __init__(self):
-        self.html_parser = EnhancedHTMLParser()
-        # Initialize vector search lazily to speed up startup
+        # Don't initialize any heavy modules during startup
+        self.html_parser = None
         self.vector_search = None
         self.db_path = "quilt_deployments.db"
         self.init_database()
+    
+    def get_html_parser(self):
+        """Lazy initialization of HTML parser"""
+        if self.html_parser is None:
+            try:
+                self.html_parser = get_html_parser()
+                print("✅ HTML Parser initialized")
+            except Exception as e:
+                print(f"⚠️ HTML Parser initialization failed: {e}")
+                # Create dummy parser
+                class DummyParser:
+                    def parse_html_file(self, file_path):
+                        return []
+                    def add_document(self, content, metadata=None):
+                        pass
+                self.html_parser = DummyParser()
+        return self.html_parser
     
     def get_vector_search(self):
         """Lazy initialization of vector search"""
         if self.vector_search is None:
             try:
-                self.vector_search = HybridVectorSearch()
+                self.vector_search = get_vector_search()
                 print("✅ Vector search initialized")
             except Exception as e:
                 print(f"⚠️ Vector search initialization failed: {e}")
@@ -119,9 +143,10 @@ class QuiltDeployment:
                 # Find and process HTML files
                 for html_file in Path(temp_dir).rglob("*.html"):
                     try:
-                        pairs = self.html_parser.parse_html_file(str(html_file))
+                        html_parser = self.get_html_parser()
+                        pairs = html_parser.parse_html_file(str(html_file))
                         for pair in pairs:
-                            self.html_parser.add_document(
+                            html_parser.add_document(
                                 f"{pair['title']}: {pair['content']}", 
                                 {
                                     'repository': f"{owner}/{repo}",
