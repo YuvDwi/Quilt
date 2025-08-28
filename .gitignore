@@ -33,7 +33,6 @@ Thumbs.db
 sample_pairs.json
 
 # Old files not needed for Quilt
-search_engine.py
 webhook_handler.py
 github_app.py
 github_app_requirements.txt
