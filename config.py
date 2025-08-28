@@ -5,7 +5,7 @@ INSTALLATION_ID = "your_installation_id_here"
 GITHUB_APP_NAME = "Your App Name"
 GITHUB_APP_DESCRIPTION = "Description of what your app does"
 
-WEBHOOK_SECRET = "your_webhook_secret_here"
+WEBHOOK_SECRET = "comeoncomeon490249ewqfn!!!heyyypopop"
 WEBHOOK_URL = "https://your-domain.com/webhook"
 
 REQUIRED_PERMISSIONS = {
