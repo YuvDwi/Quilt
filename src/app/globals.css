@@ -54,17 +54,19 @@ body {
   animation: gradient 3s ease infinite;
 }
 
-@keyframes moveThroughMaze {
-  0% { top: 10%; left: 5%; }
-  10% { top: 10%; left: 25%; }
-  20% { top: 30%; left: 25%; }
-  25% { top: 30%; left: 45%; }
-  35% { top: 50%; left: 45%; }
-  45% { top: 50%; left: 70%; }
-  55% { top: 30%; left: 70%; }
-  65% { top: 30%; left: 85%; }
-  75% { top: 70%; left: 85%; }
-  85% { top: 70%; left: 60%; }
-  95% { top: 90%; left: 60%; }
-  100% { top: 90%; left: 5%; }
+@keyframes moveThroughMazeGrid {
+  0% { grid-column: 1; grid-row: 2; }
+  8% { grid-column: 6; grid-row: 2; }
+  16% { grid-column: 6; grid-row: 4; }
+  24% { grid-column: 10; grid-row: 4; }
+  32% { grid-column: 10; grid-row: 7; }
+  40% { grid-column: 15; grid-row: 7; }
+  48% { grid-column: 15; grid-row: 3; }
+  56% { grid-column: 18; grid-row: 3; }
+  64% { grid-column: 18; grid-row: 9; }
+  72% { grid-column: 12; grid-row: 9; }
+  80% { grid-column: 12; grid-row: 11; }
+  88% { grid-column: 3; grid-row: 11; }
+  96% { grid-column: 3; grid-row: 2; }
+  100% { grid-column: 1; grid-row: 2; }
 }
