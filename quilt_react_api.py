@@ -307,11 +307,15 @@ async def get_stats():
         'recent_deployments': recent_deployments
     }
 
+class GitHubCallbackRequest(BaseModel):
+    code: str
+    state: Optional[str] = None
+
 @app.post("/auth/github/callback")
-async def github_oauth_callback(request: Dict[str, Any]):
+async def github_oauth_callback(request: GitHubCallbackRequest):
     """Handle GitHub OAuth callback securely on backend"""
-    code = request.get('code')
-    state = request.get('state')
+    code = request.code
+    state = request.state
     
     if not code:
         raise HTTPException(status_code=400, detail="Authorization code required")
