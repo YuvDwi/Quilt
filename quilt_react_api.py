@@ -25,8 +25,12 @@ def get_html_parser():
     return EnhancedHTMLParser()
 
 def get_vector_search():
-    from hybrid_vector_search import HybridVectorSearch
-    return HybridVectorSearch()
+    try:
+        from hybrid_vector_search import HybridVectorSearch
+        return HybridVectorSearch()
+    except Exception as e:
+        print(f"Warning: Could not initialize vector search: {e}")
+        return None
 
 app = FastAPI(title="Quilt React API", description="Backend API for Quilt React deployment interface")
 
