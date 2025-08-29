@@ -1,5 +1,7 @@
 import os
 import requests
+import sqlite3
+from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -15,6 +17,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize SQLite database
+def init_db():
+    conn = sqlite3.connect('deployments.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS deployments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            repo_name TEXT NOT NULL,
+            repo_url TEXT NOT NULL,
+            user_id TEXT NOT NULL,
+            sections_indexed INTEGER DEFAULT 0,
+            deployed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Initialize database on startup
+init_db()
 
 class GitHubCallbackRequest(BaseModel):
     code: str
@@ -75,14 +97,28 @@ async def github_oauth_callback(request: GitHubCallbackRequest):
 
 @app.post("/deploy")
 async def deploy_repository(request: DeployRequest):
-    """Deploy a repository (simplified version)"""
+    """Deploy a repository and store in database"""
     try:
-        # For now, just return a success response
-        # In a full implementation, this would process the repo
+        # Extract repo name from URL
+        repo_name = request.repo_url.split('/')[-1] if '/' in request.repo_url else request.repo_url
+        
+        # Mock processing - in real implementation, would parse repo content
+        sections_indexed = 15  # Mock number
+        
+        # Store deployment in database
+        conn = sqlite3.connect('deployments.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO deployments (repo_name, repo_url, user_id, sections_indexed)
+            VALUES (?, ?, ?, ?)
+        ''', (repo_name, request.repo_url, request.user, sections_indexed))
+        conn.commit()
+        conn.close()
+        
         return {
             "status": "success",
-            "message": f"Repository {request.repo_url} deployed successfully",
-            "sections_indexed": 42,  # Mock data
+            "message": f"Repository {repo_name} deployed successfully",
+            "sections_indexed": sections_indexed,
             "user": request.user
         }
     except Exception as e:
@@ -90,18 +126,30 @@ async def deploy_repository(request: DeployRequest):
 
 @app.get("/deployments/{username}")
 async def get_deployments(username: str):
-    """Get deployments for a user (simplified version)"""
-    # Mock deployment data
-    return {
-        "deployments": [
-            {
-                "repo_name": "example/repo",
-                "repo_url": "https://github.com/example/repo",
-                "deployed_at": "2025-01-28T12:00:00Z",
-                "sections_indexed": 42
-            }
-        ]
-    }
+    """Get deployments for a user from database"""
+    try:
+        conn = sqlite3.connect('deployments.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT repo_name, repo_url, deployed_at, sections_indexed
+            FROM deployments 
+            WHERE user_id = ?
+            ORDER BY deployed_at DESC
+        ''', (username,))
+        
+        deployments = []
+        for row in cursor.fetchall():
+            deployments.append({
+                "repo_name": row[0],
+                "repo_url": row[1],
+                "deployed_at": row[2],
+                "sections_indexed": row[3]
+            })
+        
+        conn.close()
+        return {"deployments": deployments}
+    except Exception as e:
+        return {"deployments": []}
 
 @app.get("/repositories")
 async def get_repositories():
