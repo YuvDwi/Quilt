@@ -19,9 +19,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   )
