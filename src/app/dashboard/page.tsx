@@ -114,7 +114,7 @@ function DashboardContent() {
       <div className="border-b border-gray-700 bg-black">
         <div className="flex justify-between items-center px-6 py-3">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded flex items-center justify-center">
+            <div className="w-8 h-8 purple-gradient-icon rounded flex items-center justify-center">
               <Database className="h-5 w-5 text-white" />
             </div>
             <span className="text-lg font-light">{user}'s projects</span>
@@ -244,14 +244,14 @@ function DashboardContent() {
                 <h2 className="text-2xl font-light">Projects</h2>
                 <div className="flex items-center space-x-2">
                   <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded p-1">
+                    <div className="purple-gradient-icon rounded p-1">
                       <Grid className="h-5 w-5 text-white" />
                     </div>
                   </button>
                   <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
                     <List className="h-5 w-5 text-gray-400" />
                   </button>
-                  <button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-light transition-all duration-300 flex items-center space-x-2 shadow-lg">
+                  <button className="purple-gradient-btn text-white px-4 py-2 rounded-lg font-light flex items-center space-x-2 shadow-lg">
                     <Plus className="h-4 w-4" />
                     <span>Add New...</span>
                     <ChevronDown className="h-4 w-4" />
@@ -306,7 +306,7 @@ function DashboardContent() {
                         <button
                           onClick={() => deployRepository(repo.html_url, repo.full_name)}
                           disabled={deploying === repo.full_name}
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-light transition-all duration-300 disabled:opacity-50 shadow-lg"
+                          className="purple-gradient-btn text-white px-4 py-2 rounded-lg text-sm font-light"
                         >
                           {deploying === repo.full_name ? (
                             <div className="flex items-center space-x-2">
@@ -330,7 +330,7 @@ function DashboardContent() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-light">Deployments</h2>
-              <button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-light transition-all duration-300 shadow-lg">
+              <button className="purple-gradient-btn text-white px-4 py-2 rounded-lg font-light shadow-lg">
                 View All
               </button>
             </div>
@@ -428,7 +428,7 @@ function DashboardContent() {
                         <button
                           onClick={() => deployRepository(repo.html_url, repo.full_name)}
                           disabled={deploying === repo.full_name}
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-light transition-all duration-300 disabled:opacity-50 shadow-lg"
+                          className="purple-gradient-btn text-white px-4 py-2 rounded-lg text-sm font-light"
                         >
                           {deploying === repo.full_name ? (
                             <div className="flex items-center space-x-2">
