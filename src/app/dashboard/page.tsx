@@ -101,7 +101,7 @@ function DashboardContent() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="flex items-center space-x-2">
-          <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
+          <RefreshCw className="h-6 w-6 animate-spin text-purple-500" />
           <span className="text-lg font-light">Loading dashboard...</span>
         </div>
       </div>
@@ -114,7 +114,7 @@ function DashboardContent() {
       <div className="border-b border-gray-800 bg-black">
         <div className="flex justify-between items-center px-6 py-3">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
+            <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center">
               <Database className="h-5 w-5 text-white" />
             </div>
             <span className="text-lg font-light">{user}'s projects</span>
@@ -130,7 +130,7 @@ function DashboardContent() {
               <input
                 type="text"
                 placeholder="Find..."
-                className="bg-gray-900 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 font-light"
+                className="bg-gray-900 text-white pl-10 pr-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-purple-500 font-light"
               />
             </div>
             <button className="text-gray-400 hover:text-white">
@@ -156,7 +156,7 @@ function DashboardContent() {
             onClick={() => setActiveTab('overview')}
             className={`py-4 px-1 border-b-2 transition-colors font-light ${
               activeTab === 'overview' 
-                ? 'border-blue-500 text-white' 
+                ? 'border-purple-500 text-white' 
                 : 'border-transparent text-gray-400 hover:text-white'
             }`}
           >
@@ -166,7 +166,7 @@ function DashboardContent() {
             onClick={() => setActiveTab('deployments')}
             className={`py-4 px-1 border-b-2 transition-colors font-light ${
               activeTab === 'deployments' 
-                ? 'border-blue-500 text-white' 
+                ? 'border-purple-500 text-white' 
                 : 'border-transparent text-gray-400 hover:text-white'
             }`}
           >
@@ -176,7 +176,7 @@ function DashboardContent() {
             onClick={() => setActiveTab('repositories')}
             className={`py-4 px-1 border-b-2 transition-colors font-light ${
               activeTab === 'repositories' 
-                ? 'border-blue-500 text-white' 
+                ? 'border-purple-500 text-white' 
                 : 'border-transparent text-gray-400 hover:text-white'
             }`}
           >
@@ -192,7 +192,7 @@ function DashboardContent() {
             {/* Left Column - Usage & Stats */}
             <div className="lg:col-span-1 space-y-6">
               {/* Usage Card */}
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+              <div className="bg-black border border-gray-800 rounded-lg p-6">
                 <div className="mb-4">
                   <h3 className="text-lg font-light">Usage</h3>
                 </div>
@@ -218,7 +218,7 @@ function DashboardContent() {
               </div>
 
               {/* Recent Deployments */}
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+              <div className="bg-black border border-gray-800 rounded-lg p-6">
                 <h3 className="text-lg font-light mb-4">Recent Deployments</h3>
                 {deployments.length > 0 ? (
                   <div className="space-y-3">
@@ -244,12 +244,12 @@ function DashboardContent() {
                 <h2 className="text-2xl font-light">Projects</h2>
                 <div className="flex items-center space-x-2">
                   <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
-                    <Grid className="h-5 w-5 text-blue-500" />
+                    <Grid className="h-5 w-5 text-purple-500" />
                   </button>
                   <button className="p-2 hover:bg-gray-800 rounded-lg transition-colors">
                     <List className="h-5 w-5 text-gray-400" />
                   </button>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-light transition-colors flex items-center space-x-2">
+                  <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-light transition-colors flex items-center space-x-2">
                     <Plus className="h-4 w-4" />
                     <span>Add New...</span>
                     <ChevronDown className="h-4 w-4" />
@@ -259,7 +259,7 @@ function DashboardContent() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {repositories.map((repo) => (
-                  <div key={repo.id} className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+                  <div key={repo.id} className="bg-black border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
                     <div className="flex justify-between items-start mb-4">
                       <div className="w-10 h-10 bg-gray-700 rounded flex items-center justify-center">
                         <span className="text-sm font-light text-white">{getInitials(repo.name)}</span>
@@ -304,7 +304,7 @@ function DashboardContent() {
                         <button
                           onClick={() => deployRepository(repo.html_url, repo.full_name)}
                           disabled={deploying === repo.full_name}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-light transition-colors disabled:opacity-50"
+                          className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-light transition-colors disabled:opacity-50"
                         >
                           {deploying === repo.full_name ? (
                             <div className="flex items-center space-x-2">
@@ -328,12 +328,12 @@ function DashboardContent() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-light">Deployments</h2>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-light transition-colors">
+              <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-light transition-colors">
                 View All
               </button>
             </div>
             
-            <div className="bg-gray-900 border border-gray-800 rounded-lg">
+            <div className="bg-black border border-gray-800 rounded-lg">
               <div className="p-6 border-b border-gray-800">
                 <h3 className="text-lg font-light">Recent Deployments</h3>
                 <p className="text-gray-400 text-sm font-light">Track your repository deployments and indexing progress</p>
@@ -379,12 +379,12 @@ function DashboardContent() {
                 <input
                   type="text"
                   placeholder="Search repositories..."
-                  className="bg-gray-800 text-white px-3 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 font-light"
+                  className="bg-gray-800 text-white px-3 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-purple-500 font-light"
                 />
               </div>
             </div>
             
-            <div className="bg-gray-900 border border-gray-800 rounded-lg">
+            <div className="bg-black border border-gray-800 rounded-lg">
               <div className="p-6 border-b border-gray-800">
                 <h3 className="text-lg font-light">Your Repositories</h3>
                 <p className="text-gray-400 text-sm font-light">Select repositories to deploy and index with Quilt</p>
@@ -409,7 +409,7 @@ function DashboardContent() {
                           href={repo.html_url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 flex items-center space-x-1 font-light"
+                          className="text-purple-400 hover:text-purple-300 flex items-center space-x-1 font-light"
                         >
                           <span>View on GitHub</span>
                           <ExternalLink className="h-3 w-3" />
@@ -426,7 +426,7 @@ function DashboardContent() {
                         <button
                           onClick={() => deployRepository(repo.html_url, repo.full_name)}
                           disabled={deploying === repo.full_name}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-light transition-colors disabled:opacity-50"
+                          className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-light transition-colors disabled:opacity-50"
                         >
                           {deploying === repo.full_name ? (
                             <div className="flex items-center space-x-2">
@@ -455,7 +455,7 @@ export default function Dashboard() {
     <Suspense fallback={
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="flex items-center space-x-2">
-          <RefreshCw className="h-6 w-6 animate-spin text-blue-500" />
+          <RefreshCw className="h-6 w-6 animate-spin text-purple-500" />
           <span className="text-lg font-light">Loading dashboard...</span>
         </div>
       </div>
