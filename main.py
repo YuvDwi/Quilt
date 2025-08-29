@@ -103,6 +103,23 @@ async def get_deployments(username: str):
         ]
     }
 
+@app.get("/repositories")
+async def get_repositories():
+    """Get repositories (mock data for now)"""
+    return {
+        "repositories": [
+            {
+                "id": 1,
+                "name": "sample-repo",
+                "full_name": "YuvDwi/sample-repo",
+                "html_url": "https://github.com/YuvDwi/sample-repo",
+                "description": "Sample repository for testing",
+                "updated_at": "2025-01-28T12:00:00Z",
+                "private": False
+            }
+        ]
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
