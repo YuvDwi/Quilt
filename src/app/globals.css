@@ -156,3 +156,47 @@ body {
 }
 
 
+
+/* Force Purple Gradient Buttons */
+.purple-gradient-btn {
+  background: linear-gradient(to right, #8b5cf6, #7c3aed) !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.purple-gradient-btn:hover {
+  background: linear-gradient(to right, #7c3aed, #6d28d9) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+.purple-gradient-btn:disabled {
+  opacity: 0.5 !important;
+  transform: none !important;
+}
+
+.purple-gradient-icon {
+  background: linear-gradient(to right, #8b5cf6, #7c3aed) !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
+}
+
+/* Additional safeguard for gradient buttons */
+button.purple-gradient-btn,
+.purple-gradient-btn {
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  background-size: 100% 100% !important;
+  color: white !important;
+}
+
+button.purple-gradient-btn:hover,
+.purple-gradient-btn:hover {
+  background: linear-gradient(90deg, #7c3aed 0%, #6d28d9 100%) !important;
+  background-size: 100% 100% !important;
+}
+
+/* Force icon gradient */
+.purple-gradient-icon {
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  background-size: 100% 100% !important;
+}
