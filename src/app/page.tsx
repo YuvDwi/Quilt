@@ -24,11 +24,20 @@ export default function Home() {
 
   const handleGitHubLogin = () => {
     setIsLoading(true)
-    // Redirect to GitHub OAuth
-    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || 'your_client_id'
+    
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+    
+    if (!clientId || clientId === 'your_client_id') {
+      alert('GitHub OAuth not configured. Please set NEXT_PUBLIC_GITHUB_CLIENT_ID environment variable.')
+      setIsLoading(false)
+      return
+    }
+    
     const redirectUri = encodeURIComponent(window.location.origin + '/auth/callback')
     const scope = 'repo'
     const state = Math.random().toString(36).substring(7)
+    
+    console.log('OAuth URL:', `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`)
     
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`
   }
