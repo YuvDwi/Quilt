@@ -26,9 +26,13 @@ export default function Home() {
     setIsLoading(true)
     
     const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+    const apiUrl = process.env.NEXT_PUBLIC_QUILT_API_URL
+    
+    console.log('Debug - Client ID:', clientId)
+    console.log('Debug - API URL:', apiUrl)
     
     if (!clientId || clientId === 'your_client_id') {
-      alert('GitHub OAuth not configured. Please set NEXT_PUBLIC_GITHUB_CLIENT_ID environment variable.')
+      alert(`GitHub OAuth not configured. Client ID: ${clientId || 'undefined'}`)
       setIsLoading(false)
       return
     }
@@ -37,9 +41,10 @@ export default function Home() {
     const scope = 'repo'
     const state = Math.random().toString(36).substring(7)
     
-    console.log('OAuth URL:', `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`)
+    const oauthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`
+    console.log('OAuth URL:', oauthUrl)
     
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`
+    window.location.href = oauthUrl
   }
 
   const handleGetStarted = () => {
