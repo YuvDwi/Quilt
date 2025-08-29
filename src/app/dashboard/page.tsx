@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Github, Database, Clock, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
 import axios from 'axios'
@@ -22,7 +22,7 @@ interface Deployment {
   sections_indexed: number
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const searchParams = useSearchParams()
   const [repositories, setRepositories] = useState<Repository[]>([])
   const [deployments, setDeployments] = useState<Deployment[]>([])
@@ -250,5 +250,20 @@ export default function Dashboard() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex items-center space-x-2">
+          <RefreshCw className="h-6 w-6 animate-spin text-indigo-600" />
+          <span className="text-lg">Loading dashboard...</span>
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   )
 }
