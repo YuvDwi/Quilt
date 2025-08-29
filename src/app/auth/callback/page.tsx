@@ -12,8 +12,8 @@ function AuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const code = searchParams.get('code')
-      const state = searchParams.get('state')
+      const code = searchParams?.get('code')
+      const state = searchParams?.get('state')
 
       if (!code) {
         setStatus('Error: No authorization code received')
@@ -23,13 +23,19 @@ function AuthCallbackContent() {
       try {
         setStatus('Exchanging authorization code...')
         
+        const apiUrl = process.env.NEXT_PUBLIC_QUILT_API_URL
+        if (!apiUrl) {
+          throw new Error('API URL not configured')
+        }
+        
         // Exchange code for access token via backend (more secure)
-        const tokenResponse = await axios.post(`${process.env.NEXT_PUBLIC_QUILT_API_URL}/auth/github/callback`, {
+        const tokenResponse = await axios.post(`${apiUrl}/auth/github/callback`, {
           code: code,
           state: state
         }, {
           headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
           }
         })
 
@@ -42,19 +48,21 @@ function AuthCallbackContent() {
 
         setStatus('Redirecting to dashboard...')
 
-        // Redirect to dashboard with user info
-        router.push(`/dashboard?token=${accessToken}&user=${user.login}`)
+        // Use window.location.href for more reliable navigation
+        window.location.href = `/dashboard?token=${accessToken}&user=${user.login}`
 
       } catch (error) {
         console.error('OAuth callback error:', error)
         setStatus('Authentication failed. Please try again.')
         setTimeout(() => {
-          router.push('/')
+          window.location.href = '/'
         }, 3000)
       }
     }
 
-    handleCallback()
+    // Add a small delay to ensure component is mounted
+    const timer = setTimeout(handleCallback, 100)
+    return () => clearTimeout(timer)
   }, [searchParams, router])
 
   return (
