@@ -28,6 +28,11 @@ def read_root():
 def health():
     return {"status": "healthy"}
 
+class DeployRequest(BaseModel):
+    repo_url: str
+    token: str
+    user: str
+
 @app.post("/auth/github/callback")
 async def github_oauth_callback(request: GitHubCallbackRequest):
     """Handle GitHub OAuth callback"""
@@ -67,6 +72,36 @@ async def github_oauth_callback(request: GitHubCallbackRequest):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OAuth callback failed: {str(e)}")
+
+@app.post("/deploy")
+async def deploy_repository(request: DeployRequest):
+    """Deploy a repository (simplified version)"""
+    try:
+        # For now, just return a success response
+        # In a full implementation, this would process the repo
+        return {
+            "status": "success",
+            "message": f"Repository {request.repo_url} deployed successfully",
+            "sections_indexed": 42,  # Mock data
+            "user": request.user
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Deployment failed: {str(e)}")
+
+@app.get("/deployments/{username}")
+async def get_deployments(username: str):
+    """Get deployments for a user (simplified version)"""
+    # Mock deployment data
+    return {
+        "deployments": [
+            {
+                "repo_name": "example/repo",
+                "repo_url": "https://github.com/example/repo",
+                "deployed_at": "2025-01-28T12:00:00Z",
+                "sections_indexed": 42
+            }
+        ]
+    }
 
 if __name__ == "__main__":
     import uvicorn
