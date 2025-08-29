@@ -3,10 +3,10 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "uvicorn simple_health_check:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 300",
+    "startCommand": "pip install -r requirements_simple.txt && uvicorn main:app --host 0.0.0.0 --port $PORT",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 120,
-    "healthcheckInterval": 10,
+    "healthcheckTimeout": 60,
+    "healthcheckInterval": 30,
     "restartPolicyType": "ON_FAILURE"
   }
 }
