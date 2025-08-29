@@ -7,9 +7,19 @@ import Link from 'next/link'
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
+    
+    // Handle scroll for navbar background
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      setIsScrolled(scrollTop > 50)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const handleGitHubLogin = () => {
@@ -35,7 +45,11 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Header */}
-      <nav className="border-b border-gray-800 bg-black fixed w-full z-50">
+      <nav className={`fixed w-full z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
+          : 'bg-transparent border-b border-transparent'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
