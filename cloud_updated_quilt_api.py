@@ -50,11 +50,21 @@ class GitHubCallbackRequest(BaseModel):
     code: str
     state: Optional[str] = None
 
+class ContentPreview(BaseModel):
+    file_path: str
+    content_type: str
+    content_preview: str
+    word_count: int
+    section_title: str
+
 class DeployResponse(BaseModel):
     success: bool
     message: str
     deployment_id: Optional[int] = None
     sections_indexed: Optional[int] = 0
+    documents_added: Optional[int] = 0
+    content_preview: Optional[List[ContentPreview]] = []
+    total_files_processed: Optional[int] = 0
 
 # Cloud-optimized Quilt Deployment Class
 class CloudQuiltDeployment:
@@ -292,26 +302,18 @@ class CloudQuiltDeployment:
             
             # Get a preview of the indexed content
             content_preview = []
-            print(f"🔍 DEBUG: Creating content preview from {len(contents)} items")
-            for i, content in enumerate(contents[:5]):  # Show first 5 sections as preview
-                print(f"🔍 DEBUG: Processing content item {i+1}: {content}")
+            for content in contents[:5]:  # Show first 5 sections as preview
                 metadata = content.get("metadata", {})
                 content_text = content.get("content", "")
                 file_path = metadata.get("file_path", "Unknown")
                 
-                preview_item = {
+                content_preview.append({
                     "file_path": file_path,
                     "content_type": metadata.get("file_name", "").split(".")[-1] if "." in metadata.get("file_name", "") else "text",
                     "content_preview": content_text[:200] + "..." if len(content_text) > 200 else content_text,
                     "word_count": len(content_text.split()),
                     "section_title": metadata.get("file_name", file_path.split("/")[-1] if file_path else "Untitled Section")
-                }
-                content_preview.append(preview_item)
-                print(f"🔍 DEBUG: Created preview item: {preview_item}")
-            
-            print(f"🔍 Content preview generated: {len(content_preview)} items")
-            for i, preview in enumerate(content_preview):
-                print(f"  {i+1}. {preview['section_title']} ({preview['word_count']} words)")
+                })
 
             response_data = {
                 'success': True,
@@ -323,7 +325,6 @@ class CloudQuiltDeployment:
                 'total_files_processed': len(set(content.get("metadata", {}).get("file_path", "") for content in contents))
             }
             
-            print(f"🔍 DEBUG: Final response data: {response_data}")
             return response_data
             
         except Exception as e:
