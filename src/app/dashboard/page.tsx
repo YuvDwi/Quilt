@@ -83,6 +83,8 @@ function DashboardContent() {
         await fetchDeployments(user)
         
         console.log('🔍 DEBUG: Full API response:', response.data)
+        console.log('🔍 DEBUG: content_preview from API:', response.data.content_preview)
+        console.log('🔍 DEBUG: content_preview type:', typeof response.data.content_preview)
         
         // Prepare deployment result data for modal
         const deploymentData = {
@@ -100,6 +102,10 @@ function DashboardContent() {
         }
         
         console.log('🔍 DEBUG: Deployment data for modal:', deploymentData)
+        console.log('🔍 DEBUG: deploymentData.content_preview:', deploymentData.content_preview)
+        
+        // Force alert to ensure we can see the data
+        alert(`DEBUG: content_preview is ${typeof response.data.content_preview} with length ${response.data.content_preview?.length || 'undefined'}`)
         
         setDeploymentResult(deploymentData)
         setShowSuccessModal(true)
