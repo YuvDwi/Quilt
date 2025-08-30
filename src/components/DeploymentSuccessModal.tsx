@@ -144,14 +144,8 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
         </div>
 
         <div className="p-6 space-y-8">
-          {/* DEBUG: Show what we're getting */}
-          <div className="bg-red-900/50 rounded p-4 text-white text-xs">
-            <p>DEBUG - Deployment Data:</p>
-            <pre>{JSON.stringify(deploymentData, null, 2)}</pre>
-          </div>
-
-          {/* Deployed Content Preview */}
-          {deploymentData.content_preview && deploymentData.content_preview.length > 0 && (
+          {/* Deployed Content Preview - ALWAYS SHOW IF DATA EXISTS */}
+          {deploymentData.content_preview && deploymentData.content_preview.length > 0 ? (
             <div className="bg-gradient-to-br from-purple-900/30 to-black rounded-lg p-6 border border-purple-500/30">
               <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
                 <Database className="h-5 w-5 mr-2 text-purple-400" />
@@ -194,6 +188,19 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
                   {deploymentData.total_files_processed} files processed
                 </p>
               </div>
+            </div>
+          ) : (
+            <div className="bg-red-900/50 rounded p-4 text-white">
+              <h3 className="text-lg font-semibold mb-2">🔍 DEBUG - No Content Preview</h3>
+              <p className="text-sm mb-2">Content preview data missing or empty:</p>
+              <pre className="text-xs bg-black/50 p-2 rounded overflow-auto max-h-40">
+                {JSON.stringify({
+                  hasContentPreview: !!deploymentData.content_preview,
+                  contentPreviewLength: deploymentData.content_preview?.length || 0,
+                  contentPreviewType: typeof deploymentData.content_preview,
+                  allKeys: Object.keys(deploymentData)
+                }, null, 2)}
+              </pre>
             </div>
           )}
 
