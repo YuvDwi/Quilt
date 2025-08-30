@@ -82,10 +82,6 @@ function DashboardContent() {
       if (response.data.success) {
         await fetchDeployments(user)
         
-        console.log('🔍 DEBUG: Full API response:', response.data)
-        console.log('🔍 DEBUG: content_preview from API:', response.data.content_preview)
-        console.log('🔍 DEBUG: content_preview type:', typeof response.data.content_preview)
-        
         // Prepare deployment result data for modal
         const deploymentData = {
           success: response.data.success,
@@ -93,19 +89,13 @@ function DashboardContent() {
           deployment_id: response.data.deployment_id,
           sections_indexed: response.data.sections_indexed,
           documents_added: response.data.documents_added,
-          content_preview: response.data.content_preview,
+          content_preview: Array.isArray(response.data.content_preview) ? response.data.content_preview : [],
           total_files_processed: response.data.total_files_processed,
           repo_name: repoName,
           repo_url: repoUrl,
           user_id: user,
           api_url: process.env.NEXT_PUBLIC_QUILT_API_URL || 'https://quilt-vkfk.onrender.com'
         }
-        
-        console.log('🔍 DEBUG: Deployment data for modal:', deploymentData)
-        console.log('🔍 DEBUG: deploymentData.content_preview:', deploymentData.content_preview)
-        
-        // Force alert to ensure we can see the data
-        alert(`DEBUG: content_preview is ${typeof response.data.content_preview} with length ${response.data.content_preview?.length || 'undefined'}`)
         
         setDeploymentResult(deploymentData)
         setShowSuccessModal(true)
