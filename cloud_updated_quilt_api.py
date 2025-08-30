@@ -44,6 +44,7 @@ app.add_middleware(
 class DeployRequest(BaseModel):
     user_id: str
     repo_url: str
+    github_token: Optional[str] = None  # User's OAuth token
 
 class DeployResponse(BaseModel):
     success: bool
@@ -149,7 +150,7 @@ class CloudQuiltDeployment:
             print(f"⚠️  Embedding error: {e}")
             return None
 
-    def fetch_github_content(self, repo_url: str) -> List[Dict[str, Any]]:
+    def fetch_github_content(self, repo_url: str, user_token: Optional[str] = None) -> List[Dict[str, Any]]:
         """Fetch content from GitHub repository"""
         try:
             # Parse GitHub URL
@@ -162,10 +163,11 @@ class CloudQuiltDeployment:
             
             owner, repo = parts[0], parts[1]
             
-            # GitHub API headers
+            # GitHub API headers - prefer user token over service token
             headers = {}
-            if self.github_token:
-                headers['Authorization'] = f'token {self.github_token}'
+            token_to_use = user_token or self.github_token
+            if token_to_use:
+                headers['Authorization'] = f'token {token_to_use}'
             
             # Get repository contents
             api_url = f"https://api.github.com/repos/{owner}/{repo}/contents"
@@ -216,7 +218,7 @@ class CloudQuiltDeployment:
             print(f"❌ GitHub fetch error: {e}")
             return []
 
-    def deploy_repository(self, user_id: str, repo_url: str) -> Dict[str, Any]:
+    def deploy_repository(self, user_id: str, repo_url: str, user_token: Optional[str] = None) -> Dict[str, Any]:
         """Deploy repository and index content"""
         try:
             # Extract repo name
@@ -224,8 +226,8 @@ class CloudQuiltDeployment:
             
             print(f"🚀 Deploying {repo_name} for {user_id}")
             
-            # Fetch GitHub content
-            contents = self.fetch_github_content(repo_url)
+            # Fetch GitHub content using user's token
+            contents = self.fetch_github_content(repo_url, user_token)
             
             if not contents:
                 return {
@@ -405,7 +407,11 @@ async def get_stats():
 @app.post("/deploy", response_model=DeployResponse)
 async def deploy_repository(request: DeployRequest, background_tasks: BackgroundTasks):
     try:
-        result = deployment_system.deploy_repository(request.user_id, request.repo_url)
+        result = deployment_system.deploy_repository(
+            request.user_id, 
+            request.repo_url, 
+            request.github_token
+        )
         
         return DeployResponse(
             success=result['success'],
