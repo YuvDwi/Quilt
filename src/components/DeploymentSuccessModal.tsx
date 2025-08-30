@@ -144,6 +144,12 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
         </div>
 
         <div className="p-6 space-y-8">
+          {/* DEBUG: Show what we're getting */}
+          <div className="bg-red-900/50 rounded p-4 text-white text-xs">
+            <p>DEBUG - Deployment Data:</p>
+            <pre>{JSON.stringify(deploymentData, null, 2)}</pre>
+          </div>
+
           {/* Deployed Content Preview */}
           {deploymentData.content_preview && deploymentData.content_preview.length > 0 && (
             <div className="bg-gradient-to-br from-purple-900/30 to-black rounded-lg p-6 border border-purple-500/30">
