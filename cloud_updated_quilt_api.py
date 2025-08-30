@@ -46,6 +46,10 @@ class DeployRequest(BaseModel):
     repo_url: str
     github_token: Optional[str] = None  # User's OAuth token
 
+class GitHubCallbackRequest(BaseModel):
+    code: str
+    state: Optional[str] = None
+
 class DeployResponse(BaseModel):
     success: bool
     message: str
@@ -76,6 +80,8 @@ class CloudQuiltDeployment:
         
         # Initialize GitHub
         self.github_token = os.getenv('GITHUB_TOKEN')
+        self.github_client_id = os.getenv('GITHUB_CLIENT_ID')
+        self.github_client_secret = os.getenv('GITHUB_CLIENT_SECRET')
         
         # Initialize PostgreSQL tables
         self.init_postgres_tables()
@@ -84,6 +90,7 @@ class CloudQuiltDeployment:
         print(f"📊 Database: {self.pg_db_config['host']}:{self.pg_db_config['port']}")
         print(f"🤖 Cohere: {'✅' if self.cohere_client else '❌'}")
         print(f"🐙 GitHub: {'✅' if self.github_token else '❌'}")
+        print(f"🔑 OAuth: {'✅' if self.github_client_id and self.github_client_secret else '❌'}")
 
     def init_postgres_tables(self):
         """Initialize PostgreSQL tables"""
@@ -434,6 +441,60 @@ async def get_deployments(user_id: str):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch deployments: {str(e)}")
+
+@app.post("/auth/github/callback")
+async def github_oauth_callback(request: GitHubCallbackRequest):
+    """Handle GitHub OAuth callback and exchange code for access token"""
+    try:
+        if not deployment_system.github_client_id or not deployment_system.github_client_secret:
+            raise HTTPException(status_code=500, detail="GitHub OAuth not configured")
+        
+        # Exchange authorization code for access token
+        token_url = "https://github.com/login/oauth/access_token"
+        token_data = {
+            "client_id": deployment_system.github_client_id,
+            "client_secret": deployment_system.github_client_secret,
+            "code": request.code
+        }
+        
+        token_headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        
+        token_response = requests.post(token_url, data=token_data, headers=token_headers)
+        token_response.raise_for_status()
+        token_json = token_response.json()
+        
+        if "access_token" not in token_json:
+            raise HTTPException(status_code=400, detail="Failed to get access token")
+        
+        access_token = token_json["access_token"]
+        
+        # Get user information
+        user_url = "https://api.github.com/user"
+        user_headers = {
+            "Authorization": f"token {access_token}",
+            "Accept": "application/json"
+        }
+        
+        user_response = requests.get(user_url, headers=user_headers)
+        user_response.raise_for_status()
+        user_data = user_response.json()
+        
+        return {
+            "access_token": access_token,
+            "user": {
+                "login": user_data.get("login"),
+                "id": user_data.get("id"),
+                "name": user_data.get("name"),
+                "avatar_url": user_data.get("avatar_url")
+            }
+        }
+        
+    except Exception as e:
+        print(f"❌ OAuth callback error: {e}")
+        raise HTTPException(status_code=500, detail=f"OAuth callback failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
