@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "database-search": {
+      "command": "python3",
+      "args": ["mcp_database_server.py"],
+      "cwd": "/Users/yuvraj/Desktop/Quilt"
+    }
+  }
+}
