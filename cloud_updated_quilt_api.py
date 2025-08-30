@@ -285,17 +285,26 @@ class CloudQuiltDeployment:
                     conn.commit()
             
             print(f"✅ Deployment complete: {documents_added} documents indexed")
+            print(f"📋 Total content sections: {len(contents)}")
             
             # Get a preview of the indexed content
             content_preview = []
             for content in contents[:5]:  # Show first 5 sections as preview
+                metadata = content.get("metadata", {})
+                content_text = content.get("content", "")
+                file_path = metadata.get("file_path", "Unknown")
+                
                 content_preview.append({
-                    "file_path": content.get("file_path", "Unknown"),
-                    "content_type": content.get("content_type", "text"),
-                    "content_preview": content.get("content", "")[:200] + "..." if len(content.get("content", "")) > 200 else content.get("content", ""),
-                    "word_count": len(content.get("content", "").split()),
-                    "section_title": content.get("title", content.get("file_path", "").split("/")[-1] if content.get("file_path") else "Untitled Section")
+                    "file_path": file_path,
+                    "content_type": metadata.get("file_name", "").split(".")[-1] if "." in metadata.get("file_name", "") else "text",
+                    "content_preview": content_text[:200] + "..." if len(content_text) > 200 else content_text,
+                    "word_count": len(content_text.split()),
+                    "section_title": metadata.get("file_name", file_path.split("/")[-1] if file_path else "Untitled Section")
                 })
+            
+            print(f"🔍 Content preview generated: {len(content_preview)} items")
+            for i, preview in enumerate(content_preview):
+                print(f"  {i+1}. {preview['section_title']} ({preview['word_count']} words)")
 
             return {
                 'success': True,
@@ -304,7 +313,7 @@ class CloudQuiltDeployment:
                 'sections_indexed': len(contents),
                 'documents_added': documents_added,
                 'content_preview': content_preview,
-                'total_files_processed': len(set(content.get("file_path", "") for content in contents))
+                'total_files_processed': len(set(content.get("metadata", {}).get("file_path", "") for content in contents))
             }
             
         except Exception as e:
