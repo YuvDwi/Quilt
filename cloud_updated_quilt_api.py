@@ -457,7 +457,10 @@ async def deploy_repository(request: DeployRequest, background_tasks: Background
             success=result['success'],
             message=result['message'],
             deployment_id=result.get('deployment_id'),
-            sections_indexed=result.get('sections_indexed', 0)
+            sections_indexed=result.get('sections_indexed', 0),
+            documents_added=result.get('documents_added', 0),
+            content_preview=result.get('content_preview', []),
+            total_files_processed=result.get('total_files_processed', 0)
         )
         
     except Exception as e:
