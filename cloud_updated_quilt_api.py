@@ -313,7 +313,7 @@ class CloudQuiltDeployment:
             for i, preview in enumerate(content_preview):
                 print(f"  {i+1}. {preview['section_title']} ({preview['word_count']} words)")
 
-            return {
+            response_data = {
                 'success': True,
                 'message': f'Successfully deployed {repo_name}',
                 'deployment_id': deployment_id,
@@ -322,6 +322,9 @@ class CloudQuiltDeployment:
                 'content_preview': content_preview,
                 'total_files_processed': len(set(content.get("metadata", {}).get("file_path", "") for content in contents))
             }
+            
+            print(f"🔍 DEBUG: Final response data: {response_data}")
+            return response_data
             
         except Exception as e:
             print(f"❌ Deployment error: {e}")
