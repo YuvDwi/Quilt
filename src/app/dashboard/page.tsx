@@ -82,6 +82,8 @@ function DashboardContent() {
       if (response.data.success) {
         await fetchDeployments(user)
         
+        console.log('🔍 DEBUG: Full API response:', response.data)
+        
         // Prepare deployment result data for modal
         const deploymentData = {
           success: response.data.success,
@@ -96,6 +98,8 @@ function DashboardContent() {
           user_id: user,
           api_url: process.env.NEXT_PUBLIC_QUILT_API_URL || 'https://quilt-vkfk.onrender.com'
         }
+        
+        console.log('🔍 DEBUG: Deployment data for modal:', deploymentData)
         
         setDeploymentResult(deploymentData)
         setShowSuccessModal(true)
