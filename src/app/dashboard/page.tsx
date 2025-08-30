@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Github, Database, Clock, CheckCircle, AlertCircle, RefreshCw, Search, Plus, Grid, List, Settings, Bell, BookOpen, HelpCircle, ChevronDown, ExternalLink, GitBranch } from 'lucide-react'
 import axios from 'axios'
+import DeploymentSuccessModal from '../../components/DeploymentSuccessModal'
 
 interface Repository {
   id: number
@@ -29,6 +30,8 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true)
   const [deploying, setDeploying] = useState<string | null>(null)
   const [user, setUser] = useState<string>('')
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [deploymentResult, setDeploymentResult] = useState<any>(null)
   const [token, setToken] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'repositories'>('overview')
 
@@ -78,7 +81,21 @@ function DashboardContent() {
       
       if (response.data.success) {
         await fetchDeployments(user)
-        alert(`Successfully deployed ${repoName}! Indexed ${response.data.sections_indexed} sections.`)
+        
+        // Prepare deployment result data for modal
+        const deploymentData = {
+          success: response.data.success,
+          message: response.data.message,
+          deployment_id: response.data.deployment_id,
+          sections_indexed: response.data.sections_indexed,
+          repo_name: repoName,
+          repo_url: repoUrl,
+          user_id: user,
+          api_url: process.env.NEXT_PUBLIC_QUILT_API_URL || 'https://quilt-vkfk.onrender.com'
+        }
+        
+        setDeploymentResult(deploymentData)
+        setShowSuccessModal(true)
       } else {
         alert(`Deployment failed: ${response.data.message}`)
       }
@@ -448,6 +465,15 @@ function DashboardContent() {
           </div>
         )}
       </div>
+
+      {/* Deployment Success Modal */}
+      {showSuccessModal && deploymentResult && (
+        <DeploymentSuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          deploymentData={deploymentResult}
+        />
+      )}
     </div>
   )
 }
