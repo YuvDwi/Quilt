@@ -235,6 +235,9 @@ class CloudQuiltDeployment:
             
             # Fetch GitHub content using user's token
             contents = self.fetch_github_content(repo_url, user_token)
+            print(f"🔍 DEBUG: Fetched {len(contents) if contents else 0} content items")
+            if contents:
+                print(f"🔍 DEBUG: First content item keys: {list(contents[0].keys()) if contents else 'None'}")
             
             if not contents:
                 return {
@@ -289,18 +292,22 @@ class CloudQuiltDeployment:
             
             # Get a preview of the indexed content
             content_preview = []
-            for content in contents[:5]:  # Show first 5 sections as preview
+            print(f"🔍 DEBUG: Creating content preview from {len(contents)} items")
+            for i, content in enumerate(contents[:5]):  # Show first 5 sections as preview
+                print(f"🔍 DEBUG: Processing content item {i+1}: {content}")
                 metadata = content.get("metadata", {})
                 content_text = content.get("content", "")
                 file_path = metadata.get("file_path", "Unknown")
                 
-                content_preview.append({
+                preview_item = {
                     "file_path": file_path,
                     "content_type": metadata.get("file_name", "").split(".")[-1] if "." in metadata.get("file_name", "") else "text",
                     "content_preview": content_text[:200] + "..." if len(content_text) > 200 else content_text,
                     "word_count": len(content_text.split()),
                     "section_title": metadata.get("file_name", file_path.split("/")[-1] if file_path else "Untitled Section")
-                })
+                }
+                content_preview.append(preview_item)
+                print(f"🔍 DEBUG: Created preview item: {preview_item}")
             
             print(f"🔍 Content preview generated: {len(content_preview)} items")
             for i, preview in enumerate(content_preview):
