@@ -3,11 +3,22 @@
 import React from 'react'
 import { X, CheckCircle, Copy, ExternalLink, Database, Zap, Brain, Code, Globe } from 'lucide-react'
 
+interface ContentPreview {
+  file_path: string
+  content_type: string
+  content_preview: string
+  word_count: number
+  section_title: string
+}
+
 interface DeploymentData {
   success: boolean
   message: string
   deployment_id?: number
   sections_indexed: number
+  documents_added?: number
+  content_preview?: ContentPreview[]
+  total_files_processed?: number
   repo_name: string
   repo_url: string
   user_id: string
@@ -113,28 +124,75 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
   ]
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-700">
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+      <div className="bg-black rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-purple-500 shadow-2xl shadow-purple-500/20">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-black">
           <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-green-500" />
+            <CheckCircle className="h-8 w-8 text-purple-400" />
             <div>
               <h2 className="text-2xl font-bold text-white">Deployment Successful! 🎉</h2>
-              <p className="text-gray-400">Your repository has been indexed and is ready to use</p>
+              <p className="text-purple-300">Your repository has been indexed and is ready to use</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-purple-400 hover:text-white transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
         <div className="p-6 space-y-8">
+          {/* Deployed Content Preview */}
+          {deploymentData.content_preview && deploymentData.content_preview.length > 0 && (
+            <div className="bg-gradient-to-br from-purple-900/30 to-black rounded-lg p-6 border border-purple-500/30">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <Database className="h-5 w-5 mr-2 text-purple-400" />
+                Deployed Content Preview
+              </h3>
+              <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+                {deploymentData.content_preview.map((content, index) => (
+                  <div key={index} className="bg-black/50 rounded-lg p-4 border border-purple-500/20">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h4 className="text-purple-300 font-medium text-sm mb-1">
+                          {content.section_title}
+                        </h4>
+                        <p className="text-purple-400/70 text-xs font-mono">
+                          {content.file_path}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-3 text-xs">
+                        <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                          {content.content_type}
+                        </span>
+                        <span className="text-purple-400">
+                          {content.word_count} words
+                        </span>
+                      </div>
+                    </div>
+                    <div className="bg-black/30 rounded p-3 mt-2">
+                      <p className="text-gray-300 text-sm font-mono leading-relaxed">
+                        {content.content_preview}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm">
+                <p className="text-purple-300">
+                  Showing {deploymentData.content_preview.length} of {deploymentData.sections_indexed} indexed sections
+                </p>
+                <p className="text-purple-400">
+                  {deploymentData.total_files_processed} files processed
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Deployment Summary */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gradient-to-br from-purple-900/20 to-black rounded-lg p-6 border border-purple-500/20">
             <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
               <Database className="h-5 w-5 mr-2 text-purple-500" />
               Deployment Summary
@@ -146,8 +204,8 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
                   <p className="text-white font-mono">{deploymentData.repo_name}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Sections Indexed</label>
-                  <p className="text-white text-2xl font-bold text-green-500">{deploymentData.sections_indexed}</p>
+                  <label className="text-sm text-purple-400">Sections Indexed</label>
+                  <p className="text-white text-2xl font-bold text-purple-400">{deploymentData.sections_indexed}</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-400">Deployment ID</label>
@@ -160,8 +218,8 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
                   <p className="text-white">{deploymentData.user_id}</p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Status</label>
-                  <p className="text-green-500 font-semibold">✅ Successfully Deployed</p>
+                  <label className="text-sm text-purple-400">Status</label>
+                  <p className="text-purple-400 font-semibold">✅ Successfully Deployed</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-400">Cloud API</label>
@@ -180,22 +238,22 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
           </div>
 
           {/* API Endpoints */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gradient-to-br from-purple-900/20 to-black rounded-lg p-6 border border-purple-500/20">
             <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <Globe className="h-5 w-5 mr-2 text-blue-500" />
+              <Globe className="h-5 w-5 mr-2 text-purple-400" />
               Available API Endpoints
             </h3>
             <div className="space-y-3">
               {Object.entries(apiEndpoints).map(([name, url]) => (
-                <div key={name} className="flex items-center justify-between bg-gray-700 rounded p-3">
+                <div key={name} className="flex items-center justify-between bg-black/50 rounded p-3 border border-purple-500/20">
                   <div>
                     <p className="text-white font-semibold capitalize">{name}</p>
-                    <p className="text-gray-400 text-sm font-mono">{url}</p>
+                    <p className="text-purple-300 text-sm font-mono">{url}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => copyToClipboard(url, name)}
-                      className="text-gray-400 hover:text-white p-1"
+                      className="text-purple-400 hover:text-white p-1"
                       title="Copy URL"
                     >
                       <Copy className="h-4 w-4" />
@@ -204,7 +262,7 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-white p-1"
+                      className="text-purple-400 hover:text-white p-1"
                       title="Open in new tab"
                     >
                       <ExternalLink className="h-4 w-4" />
@@ -214,38 +272,38 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
               ))}
             </div>
             {copiedText && (
-              <p className="text-green-500 text-sm mt-2">✅ {copiedText} copied to clipboard!</p>
+              <p className="text-purple-400 text-sm mt-2">✅ {copiedText} copied to clipboard!</p>
             )}
           </div>
 
           {/* LLM Integration Guides */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gradient-to-br from-purple-900/20 to-black rounded-lg p-6 border border-purple-500/20">
             <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-              <Brain className="h-5 w-5 mr-2 text-green-500" />
+              <Brain className="h-5 w-5 mr-2 text-purple-400" />
               LLM Integration Options
             </h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-purple-300 mb-6">
               Your data is now searchable! Here's how to integrate it with different LLMs:
             </p>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {llmIntegrations.map((integration, index) => (
-                <div key={index} className="bg-gray-700 rounded-lg p-4">
+                <div key={index} className="bg-black/50 rounded-lg p-4 border border-purple-500/20">
                   <div className="flex items-center space-x-3 mb-3">
                     <div className={`p-2 rounded ${integration.color}`}>
                       {integration.icon}
                     </div>
                     <div>
                       <h4 className="text-white font-semibold">{integration.name}</h4>
-                      <p className="text-gray-400 text-sm">{integration.description}</p>
+                      <p className="text-purple-300 text-sm">{integration.description}</p>
                     </div>
                   </div>
                   
-                  <div className="bg-gray-800 rounded p-3 mt-3">
+                  <div className="bg-black/30 rounded p-3 mt-3 border border-purple-500/10">
                     <h5 className="text-white text-sm font-semibold mb-2">Setup Instructions:</h5>
-                    <div className="text-gray-300 text-xs font-mono space-y-1">
+                    <div className="text-purple-200 text-xs font-mono space-y-1">
                       {integration.setup.map((step, stepIndex) => (
-                        <div key={stepIndex} className={step.startsWith('{') ? 'bg-gray-900 p-2 rounded overflow-x-auto' : ''}>
+                        <div key={stepIndex} className={step.startsWith('{') ? 'bg-black/50 p-2 rounded overflow-x-auto border border-purple-500/20' : ''}>
                           {step}
                         </div>
                       ))}
@@ -257,46 +315,46 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
           </div>
 
           {/* Quick Test */}
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-gradient-to-br from-purple-900/20 to-black rounded-lg p-6 border border-purple-500/20">
             <h3 className="text-xl font-semibold text-white mb-4">🧪 Quick Test</h3>
-            <p className="text-gray-400 mb-4">Test your deployment right now:</p>
-            <div className="bg-gray-900 rounded p-4 font-mono text-sm">
-              <p className="text-gray-500"># Get your deployment stats</p>
-              <p className="text-green-400">curl "{apiEndpoints.stats}"</p>
+            <p className="text-purple-300 mb-4">Test your deployment right now:</p>
+            <div className="bg-black/50 rounded p-4 font-mono text-sm border border-purple-500/20">
+              <p className="text-purple-400"># Get your deployment stats</p>
+              <p className="text-purple-300">curl "{apiEndpoints.stats}"</p>
               <br />
-              <p className="text-gray-500"># Get your deployments</p>
-              <p className="text-green-400">curl "{apiEndpoints.deployments}"</p>
+              <p className="text-purple-400"># Get your deployments</p>
+              <p className="text-purple-300">curl "{apiEndpoints.deployments}"</p>
             </div>
           </div>
 
           {/* Next Steps */}
-          <div className="bg-gradient-to-r from-purple-900 to-blue-900 rounded-lg p-6">
+          <div className="bg-gradient-to-r from-purple-900/50 to-black rounded-lg p-6 border border-purple-500/30">
             <h3 className="text-xl font-semibold text-white mb-4">🚀 What's Next?</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="bg-black bg-opacity-30 rounded p-4">
+              <div className="bg-black/50 rounded p-4 border border-purple-500/20">
                 <h4 className="text-white font-semibold mb-2">1. Choose Your LLM</h4>
-                <p className="text-gray-300">Pick from Claude Desktop, ChatGPT, Ollama, or direct API access</p>
+                <p className="text-purple-200">Pick from Claude Desktop, ChatGPT, Ollama, or direct API access</p>
               </div>
-              <div className="bg-black bg-opacity-30 rounded p-4">
+              <div className="bg-black/50 rounded p-4 border border-purple-500/20">
                 <h4 className="text-white font-semibold mb-2">2. Set Up Integration</h4>
-                <p className="text-gray-300">Follow the setup guide for your chosen LLM above</p>
+                <p className="text-purple-200">Follow the setup guide for your chosen LLM above</p>
               </div>
-              <div className="bg-black bg-opacity-30 rounded p-4">
+              <div className="bg-black/50 rounded p-4 border border-purple-500/20">
                 <h4 className="text-white font-semibold mb-2">3. Start Searching!</h4>
-                <p className="text-gray-300">Ask questions about your {deploymentData.repo_name} repository content</p>
+                <p className="text-purple-200">Ask questions about your {deploymentData.repo_name} repository content</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-700 p-6 flex justify-between items-center">
-          <p className="text-gray-400 text-sm">
+        <div className="border-t border-purple-500/30 p-6 flex justify-between items-center bg-gradient-to-r from-purple-900/10 to-black">
+          <p className="text-purple-300 text-sm">
             Your data is securely stored and searchable via the cloud API
           </p>
           <button
             onClick={onClose}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
+            className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-lg transition-colors border border-purple-500/30"
           >
             Got it!
           </button>
