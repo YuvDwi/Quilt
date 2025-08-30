@@ -286,12 +286,25 @@ class CloudQuiltDeployment:
             
             print(f"✅ Deployment complete: {documents_added} documents indexed")
             
+            # Get a preview of the indexed content
+            content_preview = []
+            for content in contents[:5]:  # Show first 5 sections as preview
+                content_preview.append({
+                    "file_path": content.get("file_path", "Unknown"),
+                    "content_type": content.get("content_type", "text"),
+                    "content_preview": content.get("content", "")[:200] + "..." if len(content.get("content", "")) > 200 else content.get("content", ""),
+                    "word_count": len(content.get("content", "").split()),
+                    "section_title": content.get("title", content.get("file_path", "").split("/")[-1] if content.get("file_path") else "Untitled Section")
+                })
+
             return {
                 'success': True,
                 'message': f'Successfully deployed {repo_name}',
                 'deployment_id': deployment_id,
                 'sections_indexed': len(contents),
-                'documents_added': documents_added
+                'documents_added': documents_added,
+                'content_preview': content_preview,
+                'total_files_processed': len(set(content.get("file_path", "") for content in contents))
             }
             
         except Exception as e:
