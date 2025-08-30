@@ -71,16 +71,16 @@ function DashboardContent() {
     setDeploying(repoName)
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_QUILT_API_URL}/deploy`, {
+        user_id: user,
         repo_url: repoUrl,
-        token: token,
-        user: user
+        github_token: token
       })
       
-      if (response.data.status === 'success') {
+      if (response.data.success) {
         await fetchDeployments(user)
         alert(`Successfully deployed ${repoName}! Indexed ${response.data.sections_indexed} sections.`)
       } else {
-        alert(`Deployment failed: ${response.data.error}`)
+        alert(`Deployment failed: ${response.data.message}`)
       }
     } catch (error) {
       alert('Deployment failed. Please try again.')
