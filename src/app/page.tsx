@@ -52,9 +52,7 @@ export default function Home() {
     element?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleViewDemo = () => {
-    window.open('https://your-railway-backend.railway.app/api', '_blank')
-  }
+
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -149,14 +147,6 @@ export default function Home() {
                   >
                     <Github className="h-5 w-5" />
                     <span>{isLoading ? 'Connecting...' : 'Get Started for Free'}</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  
-                  <button 
-                    onClick={handleViewDemo}
-                    className="border border-gray-600 text-white px-8 py-4 rounded-lg hover:border-gray-500 transition-colors flex items-center space-x-2"
-                  >
-                    <span>Our Story</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
