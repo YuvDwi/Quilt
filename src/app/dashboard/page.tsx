@@ -17,6 +17,7 @@ interface Repository {
 }
 
 interface Deployment {
+  id: number
   repo_name: string
   repo_url: string
   deployed_at: string
