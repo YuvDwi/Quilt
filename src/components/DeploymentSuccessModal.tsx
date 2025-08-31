@@ -327,21 +327,81 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
             </div>
           </div>
 
+          {/* LLM Access Notification */}
+          <div className="bg-gradient-to-r from-green-900/30 to-purple-900/30 rounded-lg p-6 border-2 border-green-500/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-purple-500/10 animate-pulse"></div>
+            <div className="relative z-10">
+              <div className="flex items-center mb-4">
+                <div className="bg-green-500 rounded-full p-2 mr-3">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-white">🎉 Your Content is Now LLM-Accessible!</h3>
+              </div>
+              
+              <div className="bg-black/30 rounded-lg p-4 mb-4 border border-green-500/30">
+                <p className="text-green-300 text-lg font-semibold mb-2">
+                  ✨ Any LLM connected to Quilt's MCP server can now search and access your deployed content!
+                </p>
+                <p className="text-purple-200 text-sm">
+                  Your <code className="bg-purple-500/20 px-2 py-1 rounded text-purple-300">data-llm</code> tagged content from <strong>{deploymentData.repo_name}</strong> is indexed and searchable by:
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                  <div className="bg-purple-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-purple-300 font-semibold text-sm">Claude Desktop</p>
+                  </div>
+                  <div className="bg-green-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-green-300 font-semibold text-sm">ChatGPT</p>
+                  </div>
+                  <div className="bg-blue-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-blue-300 font-semibold text-sm">Ollama</p>
+                  </div>
+                  <div className="bg-orange-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-orange-300 font-semibold text-sm">Any LLM</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-black/20 rounded-lg p-4 border border-purple-500/20">
+                  <h4 className="text-white font-semibold mb-2 flex items-center">
+                    <span className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-sm mr-2">1</span>
+                    LLMs Can Search Your Content
+                  </h4>
+                  <p className="text-purple-200 text-sm">
+                    Any LLM with Quilt MCP access can search through your {deploymentData.sections_indexed} indexed sections using natural language queries.
+                  </p>
+                </div>
+                <div className="bg-black/20 rounded-lg p-4 border border-green-500/20">
+                  <h4 className="text-white font-semibold mb-2 flex items-center">
+                    <span className="bg-green-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-sm mr-2">2</span>
+                    Instant Knowledge Access
+                  </h4>
+                  <p className="text-green-200 text-sm">
+                    LLMs can instantly retrieve and reference your website's information to provide accurate, contextual responses.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Next Steps */}
           <div className="bg-gradient-to-r from-purple-900/50 to-black rounded-lg p-6 border border-purple-500/30">
-            <h3 className="text-xl font-semibold text-white mb-4">🚀 What's Next?</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">🚀 Connect Your LLM</h3>
+            <p className="text-purple-300 mb-4">Set up MCP connection to start using your deployed content:</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="bg-black/50 rounded p-4 border border-purple-500/20">
                 <h4 className="text-white font-semibold mb-2">1. Choose Your LLM</h4>
                 <p className="text-purple-200">Pick from Claude Desktop, ChatGPT, Ollama, or direct API access</p>
               </div>
               <div className="bg-black/50 rounded p-4 border border-purple-500/20">
-                <h4 className="text-white font-semibold mb-2">2. Set Up Integration</h4>
+                <h4 className="text-white font-semibold mb-2">2. Set Up MCP Connection</h4>
                 <p className="text-purple-200">Follow the setup guide for your chosen LLM above</p>
               </div>
               <div className="bg-black/50 rounded p-4 border border-purple-500/20">
-                <h4 className="text-white font-semibold mb-2">3. Start Searching!</h4>
-                <p className="text-purple-200">Ask questions about your {deploymentData.repo_name} repository content</p>
+                <h4 className="text-white font-semibold mb-2">3. Start Asking Questions!</h4>
+                <p className="text-purple-200">LLMs can now search and reference your {deploymentData.repo_name} content</p>
               </div>
             </div>
           </div>
@@ -349,14 +409,17 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
 
         {/* Footer */}
         <div className="border-t border-purple-500/30 p-6 flex justify-between items-center bg-gradient-to-r from-purple-900/10 to-black">
-          <p className="text-purple-300 text-sm">
-            Your data is securely stored and searchable via the cloud API
-          </p>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <p className="text-purple-300 text-sm">
+              <strong className="text-green-400">Live:</strong> Your content is now accessible by any LLM with Quilt MCP connection
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-lg transition-colors border border-purple-500/30"
+            className="bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-500 hover:to-green-500 text-white px-6 py-2 rounded-lg transition-all duration-300 border border-purple-500/30 font-semibold"
           >
-            Got it!
+            Start Using with LLMs! 🚀
           </button>
         </div>
       </div>
