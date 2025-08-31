@@ -154,14 +154,17 @@ function DashboardContent() {
     <div className="min-h-screen bg-black text-white">
       {/* Top Header Bar */}
       <div className="border-b border-gray-700 bg-black">
-        <div className="flex justify-between items-center px-6 py-3">
+        <div className="relative flex items-center justify-between px-6 py-3">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl font-sacramento text-white">quilt</span>
             <span className="text-lg font-light">{user}'s projects</span>
             <div className="flex items-center space-x-1 text-sm text-gray-400">
               <span className="font-light">Hobby</span>
               <ChevronDown className="h-4 w-4" />
             </div>
+          </div>
+          
+          <div className="absolute left-1/2 transform -translate-x-1/2">
+            <span className="text-3xl font-sacramento text-white">quilt</span>
           </div>
           
           <div className="flex items-center space-x-4">
