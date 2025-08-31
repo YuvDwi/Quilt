@@ -125,19 +125,19 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-      <div className="bg-black rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-purple-500 shadow-2xl shadow-purple-500/20">
+      <div className="bg-black rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-gray-600 shadow-2xl shadow-gray-500/20">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-black">
+        <div className="flex items-center justify-between p-6 border-b border-gray-600 bg-gradient-to-r from-gray-800/50 to-black">
           <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-purple-400" />
+            <CheckCircle className="h-8 w-8 text-green-400" />
             <div>
               <h2 className="text-2xl font-bold text-white">Deployment Successful!</h2>
-              <p className="text-purple-300">Your repository has been indexed and is ready to use</p>
+              <p className="text-gray-300">Your repository has been indexed and is ready to use</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-purple-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -145,8 +145,8 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
 
         <div className="p-6 space-y-8">
           {/* LLM Access Notification */}
-          <div className="bg-gradient-to-r from-green-900/30 to-purple-900/30 rounded-lg p-6 border-2 border-green-500/50 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-purple-500/10 animate-pulse"></div>
+          <div className="bg-gradient-to-r from-green-900/30 to-gray-800/30 rounded-lg p-6 border-2 border-green-500/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-gray-500/10 animate-pulse"></div>
             <div className="relative z-10">
               <div className="flex items-center mb-4">
                 <div className="bg-green-500 rounded-full p-2 mr-3">
@@ -161,32 +161,32 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
                 <p className="text-green-300 text-lg font-semibold mb-2">
                   Any LLM connected to Quilt's MCP server can now search and access your deployed content!
                 </p>
-                <p className="text-purple-200 text-sm">
-                  Your <code className="bg-purple-500/20 px-2 py-1 rounded text-purple-300">data-llm</code> tagged content from <strong>{deploymentData.repo_name}</strong> is indexed and searchable by:
+                <p className="text-gray-200 text-sm">
+                  Your <code className="bg-gray-600/30 px-2 py-1 rounded text-blue-300">data-llm</code> tagged content from <strong>{deploymentData.repo_name}</strong> is indexed and searchable by:
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-                  <div className="bg-purple-500/20 rounded px-3 py-2 text-center">
-                    <p className="text-purple-300 font-semibold text-sm">Claude Desktop</p>
+                  <div className="bg-blue-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-blue-300 font-semibold text-sm">Claude Desktop</p>
                   </div>
                   <div className="bg-green-500/20 rounded px-3 py-2 text-center">
                     <p className="text-green-300 font-semibold text-sm">ChatGPT</p>
                   </div>
-                  <div className="bg-blue-500/20 rounded px-3 py-2 text-center">
-                    <p className="text-blue-300 font-semibold text-sm">Ollama</p>
+                  <div className="bg-cyan-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-cyan-300 font-semibold text-sm">Ollama</p>
                   </div>
-                  <div className="bg-orange-500/20 rounded px-3 py-2 text-center">
-                    <p className="text-orange-300 font-semibold text-sm">Any LLM</p>
+                  <div className="bg-gray-500/20 rounded px-3 py-2 text-center">
+                    <p className="text-gray-300 font-semibold text-sm">Any LLM</p>
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-black/20 rounded-lg p-4 border border-purple-500/20">
+                <div className="bg-black/20 rounded-lg p-4 border border-blue-500/20">
                   <h4 className="text-white font-semibold mb-2 flex items-center">
-                    <span className="bg-purple-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-sm mr-2">1</span>
+                    <span className="bg-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-white text-sm mr-2">1</span>
                     LLMs Can Search Your Content
                   </h4>
-                  <p className="text-purple-200 text-sm">
+                  <p className="text-gray-200 text-sm">
                     Any LLM with Quilt MCP access can search through your {deploymentData.sections_indexed} indexed sections using natural language queries.
                   </p>
                 </div>
@@ -205,28 +205,28 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
 
           {/* Deployed Content Preview */}
           {deploymentData.content_preview && deploymentData.content_preview.length > 0 && (
-            <div className="bg-gradient-to-br from-purple-900/30 to-black rounded-lg p-6 border border-purple-500/30">
+            <div className="bg-gradient-to-br from-gray-800/30 to-black rounded-lg p-6 border border-gray-600/30">
               <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-                <Database className="h-5 w-5 mr-2 text-purple-400" />
+                <Database className="h-5 w-5 mr-2 text-blue-400" />
                 Deployed Content Preview
               </h3>
               <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
                 {deploymentData.content_preview.map((content, index) => (
-                  <div key={index} className="bg-black/50 rounded-lg p-4 border border-purple-500/20">
+                  <div key={index} className="bg-black/50 rounded-lg p-4 border border-gray-600/20">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <h4 className="text-purple-300 font-medium text-sm mb-1">
+                        <h4 className="text-blue-300 font-medium text-sm mb-1">
                           {content.section_title}
                         </h4>
-                        <p className="text-purple-400/70 text-xs font-mono">
+                        <p className="text-gray-400 text-xs font-mono">
                           {content.file_path}
                         </p>
                       </div>
                       <div className="flex items-center space-x-3 text-xs">
-                        <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                        <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
                           {content.content_type}
                         </span>
-                        <span className="text-purple-400">
+                        <span className="text-gray-400">
                           {content.word_count} words
                         </span>
                       </div>
@@ -240,10 +240,10 @@ const DeploymentSuccessModal: React.FC<DeploymentSuccessModalProps> = ({
                 ))}
               </div>
               <div className="mt-4 flex items-center justify-between text-sm">
-                <p className="text-purple-300">
+                <p className="text-gray-300">
                   Showing {deploymentData.content_preview.length} of {deploymentData.sections_indexed} indexed sections
                 </p>
-                <p className="text-purple-400">
+                <p className="text-gray-400">
                   {deploymentData.total_files_processed} files processed
                 </p>
               </div>

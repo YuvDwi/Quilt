@@ -501,6 +501,52 @@ class CloudQuiltDeployment:
             print(f"❌ User search error: {e}")
             return []
 
+    def delete_deployment(self, deployment_id: int) -> Dict[str, Any]:
+        """Delete a deployment and its associated documents"""
+        try:
+            with self.get_pg_connection() as conn:
+                with conn.cursor() as cursor:
+                    # First, check if deployment exists
+                    cursor.execute("SELECT repo_name, user_id FROM deployments WHERE id = %s", (deployment_id,))
+                    deployment = cursor.fetchone()
+                    
+                    if not deployment:
+                        return {
+                            'success': False,
+                            'message': f'Deployment {deployment_id} not found'
+                        }
+                    
+                    repo_name, user_id = deployment
+                    
+                    # Delete associated documents
+                    cursor.execute("""
+                        DELETE FROM documents 
+                        WHERE metadata->>'repo_name' LIKE %s
+                    """, (f'%{repo_name}%',))
+                    
+                    documents_deleted = cursor.rowcount
+                    
+                    # Delete the deployment record
+                    cursor.execute("DELETE FROM deployments WHERE id = %s", (deployment_id,))
+                    
+                    conn.commit()
+                    
+                    print(f"✅ Deleted deployment {deployment_id}: {repo_name} ({documents_deleted} documents)")
+                    
+                    return {
+                        'success': True,
+                        'message': f'Deleted deployment {repo_name}',
+                        'documents_deleted': documents_deleted,
+                        'deployment_id': deployment_id
+                    }
+                    
+        except Exception as e:
+            print(f"❌ Delete deployment error: {e}")
+            return {
+                'success': False,
+                'message': str(e)
+            }
+
     def get_database_stats(self) -> Dict[str, Any]:
         """Get database statistics"""
         try:
@@ -613,6 +659,18 @@ async def search_user_content(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@app.delete("/deployments/{deployment_id}")
+async def delete_deployment(deployment_id: int):
+    """Delete a deployment and its associated documents"""
+    try:
+        result = deployment_system.delete_deployment(deployment_id)
+        if result['success']:
+            return {"success": True, "message": f"Deployment {deployment_id} deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail=result['message'])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete deployment: {str(e)}")
 
 @app.get("/stats")
 async def get_stats():

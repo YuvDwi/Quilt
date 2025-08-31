@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Github, Database, Clock, CheckCircle, AlertCircle, RefreshCw, Search, Plus, Grid, List, Settings, Bell, BookOpen, HelpCircle, ChevronDown, ExternalLink, GitBranch } from 'lucide-react'
+import { Github, Database, Clock, CheckCircle, AlertCircle, RefreshCw, Search, Plus, Grid, List, Settings, Bell, BookOpen, HelpCircle, ChevronDown, ExternalLink, GitBranch, Trash2 } from 'lucide-react'
 import axios from 'axios'
 import DeploymentSuccessModal from '../../components/DeploymentSuccessModal'
 
@@ -32,6 +32,7 @@ function DashboardContent() {
   const [user, setUser] = useState<string>('')
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [deploymentResult, setDeploymentResult] = useState<any>(null)
+  const [deleting, setDeleting] = useState<number | null>(null)
   const [token, setToken] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'repositories'>('overview')
 
@@ -67,6 +68,28 @@ function DashboardContent() {
       setDeployments(response.data.deployments || [])
     } catch (error) {
       console.error('Failed to fetch deployments:', error)
+    }
+  }
+
+  const deleteDeployment = async (deploymentId: number, repoName: string) => {
+    if (!confirm(`Are you sure you want to delete the deployment for ${repoName}? This will remove all indexed content.`)) {
+      return
+    }
+
+    setDeleting(deploymentId)
+    try {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_QUILT_API_URL}/deployments/${deploymentId}`)
+      
+      if (response.data.success) {
+        await fetchDeployments(user)
+        alert(`Successfully deleted deployment for ${repoName}`)
+      } else {
+        alert(`Failed to delete deployment: ${response.data.message}`)
+      }
+    } catch (error) {
+      alert('Failed to delete deployment. Please try again.')
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -374,9 +397,23 @@ function DashboardContent() {
                           Deployed {new Date(deployment.deployed_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-5 w-5 text-green-500" />
-                        <span className="text-sm font-light text-green-400">Active</span>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                          <span className="text-sm font-light text-green-400">Active</span>
+                        </div>
+                        <button
+                          onClick={() => deleteDeployment(deployment.id, deployment.repo_name)}
+                          disabled={deleting === deployment.id}
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                          title="Delete deployment"
+                        >
+                          {deleting === deployment.id ? (
+                            <RefreshCw className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </button>
                       </div>
                     </div>
                   ))
