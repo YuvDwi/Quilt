@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { Github, Database, Clock, CheckCircle, AlertCircle, RefreshCw, Search, Plus, Grid, List, Settings, Bell, BookOpen, HelpCircle, ChevronDown, ExternalLink, GitBranch, Trash2 } from 'lucide-react'
 import axios from 'axios'
 import DeploymentSuccessModal from '../../components/DeploymentSuccessModal'
+import Toast, { useToast } from '../../components/Toast'
 
 interface Repository {
   id: number
@@ -36,6 +37,7 @@ function DashboardContent() {
   const [deleting, setDeleting] = useState<number | null>(null)
   const [token, setToken] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'repositories'>('overview')
+  const { toast, showToast, hideToast } = useToast()
 
   useEffect(() => {
     const userParam = searchParams.get('user')
@@ -83,12 +85,12 @@ function DashboardContent() {
       
       if (response.data.success) {
         await fetchDeployments(user)
-        alert(`Successfully deleted deployment for ${repoName}`)
+        showToast(`Successfully deleted deployment for ${repoName}`, 'success')
       } else {
-        alert(`Failed to delete deployment: ${response.data.message}`)
+        showToast(`Failed to delete deployment: ${response.data.message}`, 'error')
       }
     } catch (error) {
-      alert('Failed to delete deployment. Please try again.')
+      showToast('Failed to delete deployment. Please try again.', 'error')
     } finally {
       setDeleting(null)
     }
@@ -124,10 +126,10 @@ function DashboardContent() {
         setDeploymentResult(deploymentData)
         setShowSuccessModal(true)
       } else {
-        alert(`Deployment failed: ${response.data.message}`)
+        showToast(`Deployment failed: ${response.data.message}`, 'error')
       }
     } catch (error) {
-      alert('Deployment failed. Please try again.')
+      showToast('Deployment failed. Please try again.', 'error')
     } finally {
       setDeploying(null)
     }
@@ -515,6 +517,14 @@ function DashboardContent() {
           deploymentData={deploymentResult}
         />
       )}
+
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   )
 }
