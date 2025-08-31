@@ -195,7 +195,7 @@ class CloudQuiltDeployment:
             files = response.json()
             
             for file_info in files:
-                if file_info['type'] == 'file' and file_info['name'].endswith(('.html', '.md', '.txt')):
+                if file_info['type'] == 'file' and file_info['name'].endswith(('.html', '.jsx', '.tsx', '.js', '.ts')):
                     try:
                         # Download file content
                         file_response = requests.get(file_info['download_url'])
@@ -203,28 +203,58 @@ class CloudQuiltDeployment:
                         
                         content = file_response.text
                         
-                        # Parse HTML content
-                        if file_info['name'].endswith('.html'):
+                        # Parse HTML/JSX content and extract only data-llm tagged elements
+                        if file_info['name'].endswith(('.html', '.jsx', '.tsx')):
                             soup = BeautifulSoup(content, 'html.parser')
-                            # Remove script and style elements
-                            for script in soup(["script", "style"]):
-                                script.decompose()
-                            content = soup.get_text()
+                            
+                            # Find all elements with data-llm attributes
+                            llm_elements = soup.find_all(attrs={'data-llm': True})
+                            
+                            for element in llm_elements:
+                                llm_type = element.get('data-llm')
+                                element_content = element.get_text(strip=True)
+                                
+                                if len(element_content) > 10:  # Only process substantial content
+                                    contents.append({
+                                        'content': element_content,
+                                        'metadata': {
+                                            'source': 'github_repo',
+                                            'repo_name': f"{owner}/{repo}",
+                                            'file_path': file_info['path'],
+                                            'file_name': file_info['name'],
+                                            'file_size': file_info['size'],
+                                            'download_url': file_info['download_url'],
+                                            'llm_type': llm_type,
+                                            'element_tag': element.name
+                                        }
+                                    })
                         
-                        # Clean and chunk content
-                        content = ' '.join(content.split())
-                        if len(content) > 100:  # Only process substantial content
-                            contents.append({
-                                'content': content,
-                                'metadata': {
-                                    'source': 'github_repo',
-                                    'repo_name': f"{owner}/{repo}",
-                                    'file_path': file_info['path'],
-                                    'file_name': file_info['name'],
-                                    'file_size': file_info['size'],
-                                    'download_url': file_info['download_url']
-                                }
-                            })
+                        # For JS/TS files, look for JSX-style data-llm attributes in strings
+                        elif file_info['name'].endswith(('.js', '.ts')):
+                            import re
+                            # Look for JSX elements with data-llm attributes
+                            jsx_pattern = r'<(\w+)[^>]*data-llm=["\']([^"\']+)["\'][^>]*>(.*?)</\1>'
+                            matches = re.findall(jsx_pattern, content, re.DOTALL | re.IGNORECASE)
+                            
+                            for tag, llm_type, jsx_content in matches:
+                                # Clean JSX content (remove nested tags)
+                                clean_content = re.sub(r'<[^>]+>', '', jsx_content).strip()
+                                clean_content = ' '.join(clean_content.split())
+                                
+                                if len(clean_content) > 10:
+                                    contents.append({
+                                        'content': clean_content,
+                                        'metadata': {
+                                            'source': 'github_repo',
+                                            'repo_name': f"{owner}/{repo}",
+                                            'file_path': file_info['path'],
+                                            'file_name': file_info['name'],
+                                            'file_size': file_info['size'],
+                                            'download_url': file_info['download_url'],
+                                            'llm_type': llm_type,
+                                            'element_tag': tag
+                                        }
+                                    })
                     except Exception as e:
                         print(f"⚠️  Error processing {file_info['name']}: {e}")
                         continue
@@ -307,12 +337,15 @@ class CloudQuiltDeployment:
                 content_text = content.get("content", "")
                 file_path = metadata.get("file_path", "Unknown")
                 
+                llm_type = metadata.get("llm_type", "content")
+                element_tag = metadata.get("element_tag", "div")
+                
                 content_preview.append({
                     "file_path": file_path,
-                    "content_type": metadata.get("file_name", "").split(".")[-1] if "." in metadata.get("file_name", "") else "text",
+                    "content_type": metadata.get("file_name", "").split(".")[-1] if "." in metadata.get("file_name", "") else "html",
                     "content_preview": content_text[:200] + "..." if len(content_text) > 200 else content_text,
                     "word_count": len(content_text.split()),
-                    "section_title": metadata.get("file_name", file_path.split("/")[-1] if file_path else "Untitled Section")
+                    "section_title": f"{llm_type.title()} ({element_tag}) - {metadata.get('file_name', 'Unknown')}"
                 })
 
             response_data = {
