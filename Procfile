@@ -1,1 +1,1 @@
-web: uvicorn quilt_react_api:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 75
+web: uvicorn cloud_updated_quilt_api:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 75
