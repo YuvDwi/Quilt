@@ -75,10 +75,6 @@ function DashboardContent() {
   }
 
   const deleteDeployment = async (deploymentId: number, repoName: string) => {
-    if (!confirm(`Are you sure you want to delete the deployment for ${repoName}? This will remove all indexed content.`)) {
-      return
-    }
-
     setDeleting(deploymentId)
     try {
       const response = await axios.delete(`${process.env.NEXT_PUBLIC_QUILT_API_URL}/deployments/${deploymentId}`)
