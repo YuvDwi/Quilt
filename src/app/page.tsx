@@ -110,6 +110,9 @@ export default function Home() {
               <div className="absolute bg-purple-600 block-2"></div>
               <div className="absolute bg-purple-400 block-3"></div>
               <div className="absolute bg-purple-300 block-4"></div>
+              <div className="absolute bg-purple-500 block-5"></div>
+              <div className="absolute bg-purple-400 block-6"></div>
+              <div className="absolute bg-purple-600 block-7"></div>
             </div>
           </div>
         </div>

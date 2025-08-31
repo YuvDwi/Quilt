@@ -116,7 +116,7 @@ body {
 }
 
 
-.block-1, .block-2, .block-3, .block-4 {
+.block-1, .block-2, .block-3, .block-4, .block-5, .block-6, .block-7 {
   width: 40px;
   height: 40px;
   border-radius: 4px;
@@ -136,6 +136,18 @@ body {
 
 .block-4 {
   animation: moveBlock4 16s linear infinite;
+}
+
+.block-5 {
+  animation: moveBlock5 16s linear infinite;
+}
+
+.block-6 {
+  animation: moveBlock6 16s linear infinite;
+}
+
+.block-7 {
+  animation: moveBlock7 16s linear infinite;
 }
 
 @keyframes moveBlock1 {
@@ -168,6 +180,30 @@ body {
   50% { left: 55%; top: 35%; }
   75% { left: 8%; top: 35%; }
   100% { left: 8%; top: 70%; }
+}
+
+@keyframes moveBlock5 {
+  0% { left: 60%; top: 8%; }
+  25% { left: 60%; top: 75%; }
+  50% { left: 15%; top: 75%; }
+  75% { left: 15%; top: 8%; }
+  100% { left: 60%; top: 8%; }
+}
+
+@keyframes moveBlock6 {
+  0% { left: 80%; top: 50%; }
+  25% { left: 35%; top: 50%; }
+  50% { left: 35%; top: 25%; }
+  75% { left: 80%; top: 25%; }
+  100% { left: 80%; top: 50%; }
+}
+
+@keyframes moveBlock7 {
+  0% { left: 30%; top: 80%; }
+  25% { left: 75%; top: 80%; }
+  50% { left: 75%; top: 10%; }
+  75% { left: 30%; top: 10%; }
+  100% { left: 30%; top: 80%; }
 }
 
 
