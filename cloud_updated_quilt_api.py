@@ -521,7 +521,7 @@ class CloudQuiltDeployment:
                     # Delete associated documents
                     cursor.execute("""
                         DELETE FROM documents 
-                        WHERE metadata->>'repo_name' LIKE %s
+                        WHERE doc_metadata->>'repo_name' LIKE %s
                     """, (f'%{repo_name}%',))
                     
                     documents_deleted = cursor.rowcount
