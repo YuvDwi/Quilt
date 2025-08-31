@@ -146,7 +146,7 @@ export default function Home() {
                     className="bg-white text-black px-8 py-4 rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center space-x-2"
                   >
                     <Github className="h-5 w-5" />
-                    <span>{isLoading ? 'Connecting...' : 'Get Started for Free'}</span>
+                    <span>{isLoading ? 'Connecting...' : 'Get Started'}</span>
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -280,7 +280,7 @@ export default function Home() {
             Ready to deploy your vector database?
           </h2>
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-            Get started with 100,000 free embeddings per month. No credit card required.
+            Transform your repositories into searchable knowledge bases for LLMs.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

@@ -1,2 +1,0 @@
-This file is created to force a Render redeploy.
-Timestamp: 2024-12-19 - API should return content_preview data
