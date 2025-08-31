@@ -79,12 +79,6 @@ export default function Home() {
               >
                 Product
               </button>
-              <button 
-                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                Docs
-              </button>
               <Link 
                 href="https://github.com/YuvDwi/Quilt" 
                 target="_blank"
