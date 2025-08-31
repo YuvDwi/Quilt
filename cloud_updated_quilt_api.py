@@ -15,7 +15,7 @@ from urllib.parse import urlparse
 from typing import List, Dict, Any, Optional
 from contextlib import contextmanager
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -400,6 +400,107 @@ class CloudQuiltDeployment:
             print(f"❌ Error fetching deployments: {e}")
             return []
 
+    def search_content(self, query: str, search_type: str = "hybrid", limit: int = 10) -> List[Dict[str, Any]]:
+        """Search through all content"""
+        try:
+            # Generate query embedding for vector search
+            query_embedding = None
+            if search_type in ["vector", "hybrid"] and self.cohere_client:
+                response = self.cohere_client.embed(
+                    texts=[query],
+                    model='embed-english-v3.0',
+                    input_type='search_query'
+                )
+                query_embedding = response.embeddings[0]
+            
+            with self.get_pg_connection() as conn:
+                with conn.cursor() as cursor:
+                    if search_type == "vector" and query_embedding:
+                        # Vector similarity search
+                        cursor.execute("""
+                            SELECT content, metadata, 
+                                   1 - (embedding <=> %s::vector) as similarity
+                            FROM documents 
+                            ORDER BY embedding <=> %s::vector
+                            LIMIT %s
+                        """, (query_embedding, query_embedding, limit))
+                    
+                    elif search_type == "keyword":
+                        # Keyword search using PostgreSQL full-text search
+                        cursor.execute("""
+                            SELECT content, metadata, 
+                                   ts_rank(to_tsvector('english', content), plainto_tsquery('english', %s)) as rank
+                            FROM documents 
+                            WHERE to_tsvector('english', content) @@ plainto_tsquery('english', %s)
+                            ORDER BY rank DESC
+                            LIMIT %s
+                        """, (query, query, limit))
+                    
+                    else:  # hybrid or fallback
+                        # Simple text search as fallback
+                        cursor.execute("""
+                            SELECT content, metadata, 
+                                   CASE WHEN content ILIKE %s THEN 1.0 ELSE 0.5 END as score
+                            FROM documents 
+                            WHERE content ILIKE %s
+                            ORDER BY score DESC
+                            LIMIT %s
+                        """, (f'%{query}%', f'%{query}%', limit))
+                    
+                    results = cursor.fetchall()
+                    
+                    return [
+                        {
+                            'content': row[0][:500] + "..." if len(row[0]) > 500 else row[0],
+                            'metadata': row[1],
+                            'score': float(row[2]) if row[2] else 0.0
+                        } for row in results
+                    ]
+                    
+        except Exception as e:
+            print(f"❌ Search error: {e}")
+            return []
+
+    def search_user_content(self, user_id: str, query: str, search_type: str = "hybrid", limit: int = 10) -> List[Dict[str, Any]]:
+        """Search through specific user's content"""
+        try:
+            with self.get_pg_connection() as conn:
+                with conn.cursor() as cursor:
+                    # Get user's repositories
+                    cursor.execute("SELECT repo_name FROM deployments WHERE user_id = %s", (user_id,))
+                    user_repos = [row[0] for row in cursor.fetchall()]
+                    
+                    if not user_repos:
+                        return []
+                    
+                    # Simple search within user's content
+                    repo_conditions = " OR ".join(["metadata->>'repo_name' LIKE %s" for _ in user_repos])
+                    repo_params = [f'%{repo}%' for repo in user_repos]
+                    
+                    cursor.execute(f"""
+                        SELECT content, metadata, 
+                               CASE WHEN content ILIKE %s THEN 1.0 ELSE 0.5 END as score
+                        FROM documents 
+                        WHERE ({repo_conditions}) AND content ILIKE %s
+                        ORDER BY score DESC
+                        LIMIT %s
+                    """, [f'%{query}%'] + repo_params + [f'%{query}%', limit])
+                    
+                    results = cursor.fetchall()
+                    
+                    return [
+                        {
+                            'content': row[0][:500] + "..." if len(row[0]) > 500 else row[0],
+                            'metadata': row[1],
+                            'score': float(row[2]) if row[2] else 0.0,
+                            'user_id': user_id
+                        } for row in results
+                    ]
+                    
+        except Exception as e:
+            print(f"❌ User search error: {e}")
+            return []
+
     def get_database_stats(self) -> Dict[str, Any]:
         """Get database statistics"""
         try:
@@ -472,6 +573,46 @@ async def health_check():
         "cohere_api": "configured" if deployment_system.cohere_client else "missing",
         "github_api": "configured" if deployment_system.github_token else "missing"
     }
+
+@app.get("/search")
+async def search_content(
+    query: str = Query(..., description="Search query"),
+    search_type: str = Query("hybrid", description="Search type: vector, keyword, or hybrid"),
+    limit: int = Query(10, description="Maximum number of results")
+):
+    """Search through all deployed content"""
+    try:
+        results = deployment_system.search_content(query, search_type, limit)
+        return {
+            "success": True,
+            "query": query,
+            "search_type": search_type,
+            "results": results,
+            "total_results": len(results)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+
+@app.get("/search/{user_id}")
+async def search_user_content(
+    user_id: str,
+    query: str = Query(..., description="Search query"),
+    search_type: str = Query("hybrid", description="Search type: vector, keyword, or hybrid"),
+    limit: int = Query(10, description="Maximum number of results")
+):
+    """Search through specific user's deployed content"""
+    try:
+        results = deployment_system.search_user_content(user_id, query, search_type, limit)
+        return {
+            "success": True,
+            "user_id": user_id,
+            "query": query,
+            "search_type": search_type,
+            "results": results,
+            "total_results": len(results)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 @app.get("/stats")
 async def get_stats():

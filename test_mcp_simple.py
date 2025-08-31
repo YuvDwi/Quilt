@@ -1,97 +1,70 @@
 #!/usr/bin/env python3
 """
-Test the simple MCP server
+Very simple MCP test - minimal implementation
 """
 
-import subprocess
-import json
-import time
+import asyncio
 import sys
+import json
+from mcp.server.models import InitializationOptions
+from mcp.server import NotificationOptions, Server
+from mcp.server.stdio import stdio_server
+from mcp.types import (
+    CallToolRequest,
+    CallToolResult,
+    ListToolsRequest, 
+    ListToolsResult,
+    Tool,
+    TextContent,
+)
 
-def test_mcp_server():
-    print("🧪 Testing Simple MCP Server...")
-    
-    try:
-        # Start the MCP server
-        process = subprocess.Popen(
-            [sys.executable, "simple_mcp_server.py"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=0
-        )
-        
-        # Send initialization
-        init_msg = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "initialize",
-            "params": {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {},
-                "clientInfo": {"name": "test", "version": "1.0.0"}
-            }
-        }
-        
-        process.stdin.write(json.dumps(init_msg) + "\n")
-        process.stdin.flush()
-        
-        # Wait and check if process is still running
-        time.sleep(2)
-        
-        if process.poll() is None:
-            print("✅ Server started successfully")
-            
-            # Send tools list request
-            tools_msg = {
-                "jsonrpc": "2.0",
-                "id": 2,
-                "method": "tools/list",
-                "params": {}
-            }
-            
-            process.stdin.write(json.dumps(tools_msg) + "\n")
-            process.stdin.flush()
-            time.sleep(1)
-            
-            print("✅ Tools request sent")
-            
-            # Test search
-            search_msg = {
-                "jsonrpc": "2.0",
-                "id": 3,
-                "method": "tools/call",
-                "params": {
-                    "name": "search_database",
-                    "arguments": {"query": "machine learning"}
+# Create server
+server = Server("test")
+
+@server.list_tools()
+async def handle_list_tools() -> ListToolsResult:
+    return ListToolsResult(
+        tools=[
+            Tool(
+                name="hello",
+                description="Say hello",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": []
                 }
-            }
-            
-            process.stdin.write(json.dumps(search_msg) + "\n")
-            process.stdin.flush()
-            time.sleep(2)
-            
-            print("✅ Search request sent")
-            print("✅ MCP server is working!")
-            
-        else:
-            print("❌ Server failed to start")
-            stderr = process.stderr.read()
-            if stderr:
-                print(f"Error: {stderr}")
-        
-        # Clean up
-        process.terminate()
-        process.wait()
-        
-    except Exception as e:
-        print(f"❌ Test failed: {e}")
+            )
+        ]
+    )
+
+@server.call_tool()
+async def handle_call_tool(name: str, arguments: dict) -> CallToolResult:
+    if name == "hello":
+        return CallToolResult(
+            content=[TextContent(
+                type="text", 
+                text="Hello! MCP is working! Your quilt-test has 2 documents at https://quilt-vkfk.onrender.com"
+            )]
+        )
+    
+    return CallToolResult(
+        content=[TextContent(type="text", text=f"Unknown tool: {name}")]
+    )
+
+async def main():
+    async with stdio_server() as (read_stream, write_stream):
+        await server.run(
+            read_stream,
+            write_stream,
+            InitializationOptions(
+                server_name="test",
+                server_version="1.0.0",
+                capabilities=server.get_capabilities(
+                    notification_options=NotificationOptions(),
+                    experimental_capabilities={},
+                ),
+            ),
+        )
 
 if __name__ == "__main__":
-    test_mcp_server()
-    print("\n🔧 NEXT STEPS:")
-    print("1. Restart Claude Desktop completely")
-    print("2. Open new conversation")
-    print("3. Ask: 'Search my database for machine learning'")
-    print("4. Claude should now be able to search your database!")
+    asyncio.run(main())

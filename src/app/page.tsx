@@ -183,7 +183,7 @@ export default function Home() {
               Websites that speak the language of LLMs
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              No matter the content
+              Making every website MCP native
             </p>
           </div>
           

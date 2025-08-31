@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Cloud MCP Server for Quilt - Connects to Render-hosted API
+Updated Cloud MCP Server for Quilt - Uses the general search API
 """
 
 import asyncio
@@ -22,247 +22,256 @@ from mcp.types import (
 )
 
 # Cloud API Configuration
-CLOUD_API_URL = os.getenv('CLOUD_API_URL', 'https://quilt-api-xyz.onrender.com')
+CLOUD_API_URL = os.getenv('CLOUD_API_URL', 'https://quilt-vkfk.onrender.com')
 
-class CloudQuiltMCPServer:
+class QuiltMCPServer:
     def __init__(self):
         self.api_url = CLOUD_API_URL
-        print(f"🌐 Cloud MCP Server initialized", file=sys.stderr)
+        print(f"🌐 Quilt MCP Server initialized", file=sys.stderr)
         print(f"🔗 API URL: {self.api_url}", file=sys.stderr)
 
-    def search_cloud_database(self, query: str, limit: int = 10) -> Dict[str, Any]:
-        """Search the cloud-hosted database via API"""
+    async def search_content(self, query: str, search_type: str = "hybrid", limit: int = 5) -> TextContent:
+        """Search all deployed content using the general search API"""
         try:
-            # For now, use stats endpoint to get database info
-            # In a full implementation, you'd add a search endpoint to the cloud API
-            response = requests.get(f"{self.api_url}/stats", timeout=30)
-            response.raise_for_status()
+            response = requests.get(
+                f"{self.api_url}/search",
+                params={
+                    "query": query,
+                    "search_type": search_type,
+                    "limit": limit
+                },
+                timeout=15
+            )
             
-            stats = response.json()
-            
-            # Simple keyword matching for demo
-            # In production, you'd implement proper search in the cloud API
-            results = []
-            if 'repositories' in stats:
-                for repo, count in stats['repositories'].items():
-                    if any(keyword.lower() in repo.lower() for keyword in query.split()):
-                        results.append({
-                            'repo_name': repo,
-                            'document_count': count,
-                            'relevance': 'keyword_match'
-                        })
-            
-            return {
-                'query': query,
-                'total_results': len(results),
-                'results': results[:limit],
-                'database_stats': stats
-            }
-            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if data.get('success') and data.get('results'):
+                    results_text = f"🔍 **Search Results for '{query}'**\n"
+                    results_text += f"Found {data['total_results']} results using {search_type} search:\n\n"
+                    
+                    for i, result in enumerate(data['results'], 1):
+                        metadata = result.get('metadata', {})
+                        file_name = metadata.get('file_name', 'Unknown file')
+                        repo_name = metadata.get('repo_name', 'Unknown repo')
+                        llm_type = metadata.get('llm_type', 'content')
+                        element_tag = metadata.get('element_tag', 'div')
+                        score = result.get('score', 0)
+                        
+                        results_text += f"**{i}. {llm_type.title()} from {repo_name}**\n"
+                        results_text += f"📁 File: {file_name}\n"
+                        results_text += f"🏷️ Element: <{element_tag} data-llm=\"{llm_type}\">\n"
+                        results_text += f"📊 Relevance Score: {score:.2f}\n"
+                        results_text += f"📄 Content:\n{result['content']}\n\n"
+                        results_text += "---\n\n"
+                    
+                    return TextContent(text=results_text)
+                else:
+                    return TextContent(text=f"❌ No results found for '{query}'.\n\nTry:\n- Different keywords\n- Check if content has been deployed\n- Use broader search terms")
+            else:
+                return TextContent(text=f"❌ Search API error: HTTP {response.status_code}")
+                
         except Exception as e:
-            print(f"❌ Cloud search error: {e}", file=sys.stderr)
-            return {
-                'query': query,
-                'error': str(e),
-                'total_results': 0,
-                'results': []
-            }
+            return TextContent(text=f"❌ Search failed: {str(e)}")
 
-    def get_cloud_database_stats(self) -> Dict[str, Any]:
-        """Get statistics from cloud database"""
+    async def search_user_content(self, user_id: str, query: str, search_type: str = "hybrid", limit: int = 5) -> TextContent:
+        """Search specific user's deployed content"""
         try:
-            response = requests.get(f"{self.api_url}/stats", timeout=30)
-            response.raise_for_status()
-            return response.json()
+            response = requests.get(
+                f"{self.api_url}/search/{user_id}",
+                params={
+                    "query": query,
+                    "search_type": search_type,
+                    "limit": limit
+                },
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if data.get('success') and data.get('results'):
+                    results_text = f"🔍 **{user_id}'s Content Search Results for '{query}'**\n"
+                    results_text += f"Found {data['total_results']} results:\n\n"
+                    
+                    for i, result in enumerate(data['results'], 1):
+                        metadata = result.get('metadata', {})
+                        file_name = metadata.get('file_name', 'Unknown file')
+                        repo_name = metadata.get('repo_name', 'Unknown repo')
+                        llm_type = metadata.get('llm_type', 'content')
+                        score = result.get('score', 0)
+                        
+                        results_text += f"**{i}. {llm_type.title()}** (Score: {score:.2f})\n"
+                        results_text += f"📁 {repo_name} → {file_name}\n"
+                        results_text += f"📄 {result['content']}\n\n"
+                        results_text += "---\n\n"
+                    
+                    return TextContent(text=results_text)
+                else:
+                    return TextContent(text=f"❌ No results found for user '{user_id}' with query '{query}'.")
+            else:
+                return TextContent(text=f"❌ User search API error: HTTP {response.status_code}")
+                
         except Exception as e:
-            print(f"❌ Cloud stats error: {e}", file=sys.stderr)
-            return {'error': str(e), 'total_documents': 0}
+            return TextContent(text=f"❌ User search failed: {str(e)}")
 
-    def get_health_status(self) -> Dict[str, Any]:
-        """Get health status from cloud API"""
+    async def get_database_stats(self) -> TextContent:
+        """Get database statistics and health info"""
         try:
-            response = requests.get(f"{self.api_url}/health", timeout=30)
-            response.raise_for_status()
-            return response.json()
+            response = requests.get(f"{self.api_url}/stats", timeout=10)
+            
+            if response.status_code == 200:
+                stats = response.json()
+                
+                stats_text = "📊 **Quilt Database Statistics**\n\n"
+                stats_text += f"🗄️ Total Documents: {stats.get('total_documents', 'Unknown')}\n"
+                stats_text += f"🚀 Total Deployments: {stats.get('total_deployments', 'Unknown')}\n\n"
+                
+                if 'recent_deployments' in stats:
+                    stats_text += "📈 **Recent Deployments:**\n"
+                    for deployment in stats['recent_deployments']:
+                        stats_text += f"• {deployment.get('repo_name', 'Unknown')} - {deployment.get('sections_indexed', 0)} sections\n"
+                
+                return TextContent(text=stats_text)
+            else:
+                return TextContent(text=f"❌ Stats API error: HTTP {response.status_code}")
+                
         except Exception as e:
-            print(f"❌ Cloud health error: {e}", file=sys.stderr)
-            return {'status': 'error', 'error': str(e)}
+            return TextContent(text=f"❌ Failed to get stats: {str(e)}")
 
-# Initialize server
-server = Server("cloud-quilt-database")
-quilt_server = CloudQuiltMCPServer()
+# Initialize the MCP server
+quilt_server = QuiltMCPServer()
+server = Server("quilt-search")
 
 @server.list_tools()
 async def handle_list_tools() -> ListToolsResult:
-    """List available tools for Claude Desktop"""
+    """List available tools"""
     return ListToolsResult(
         tools=[
             Tool(
-                name="search_cloud_database",
-                description="Search the cloud-hosted Quilt database for relevant content",
+                name="search_content",
+                description="Search through all deployed content using vector, keyword, or hybrid search",
                 inputSchema={
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "Search query to find relevant documents"
+                            "description": "Search query"
+                        },
+                        "search_type": {
+                            "type": "string",
+                            "enum": ["vector", "keyword", "hybrid"],
+                            "description": "Type of search to perform",
+                            "default": "hybrid"
                         },
                         "limit": {
-                            "type": "integer", 
-                            "description": "Maximum number of results to return",
-                            "default": 10
+                            "type": "integer",
+                            "description": "Maximum number of results",
+                            "default": 5,
+                            "minimum": 1,
+                            "maximum": 20
                         }
                     },
                     "required": ["query"]
                 }
             ),
             Tool(
-                name="get_cloud_database_stats",
-                description="Get statistics about the cloud database contents",
+                name="search_user_content",
+                description="Search through a specific user's deployed content",
                 inputSchema={
                     "type": "object",
-                    "properties": {},
-                    "required": []
+                    "properties": {
+                        "user_id": {
+                            "type": "string",
+                            "description": "User ID to search within"
+                        },
+                        "query": {
+                            "type": "string",
+                            "description": "Search query"
+                        },
+                        "search_type": {
+                            "type": "string",
+                            "enum": ["vector", "keyword", "hybrid"],
+                            "description": "Type of search to perform",
+                            "default": "hybrid"
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum number of results",
+                            "default": 5,
+                            "minimum": 1,
+                            "maximum": 20
+                        }
+                    },
+                    "required": ["user_id", "query"]
                 }
             ),
             Tool(
-                name="get_cloud_health",
-                description="Check the health status of the cloud API and database",
+                name="get_database_stats",
+                description="Get database statistics and deployment information",
                 inputSchema={
-                    "type": "object", 
-                    "properties": {},
-                    "required": []
+                    "type": "object",
+                    "properties": {}
                 }
             )
         ]
     )
 
 @server.call_tool()
-async def handle_call_tool(name: str, arguments: dict) -> CallToolResult:
-    """Handle tool calls from Claude Desktop"""
+async def handle_call_tool(request: CallToolRequest) -> CallToolResult:
+    """Handle tool calls"""
     try:
-        if name == "search_cloud_database":
-            query = arguments.get("query", "")
-            limit = arguments.get("limit", 10)
+        if request.name == "search_content":
+            query = request.arguments.get("query", "")
+            search_type = request.arguments.get("search_type", "hybrid")
+            limit = request.arguments.get("limit", 5)
             
-            print(f"🔍 Searching cloud database for: {query}", file=sys.stderr)
-            result = quilt_server.search_cloud_database(query, limit)
+            result = await quilt_server.search_content(query, search_type, limit)
+            return CallToolResult(content=[result])
             
-            if result.get('error'):
-                return CallToolResult(
-                    content=[TextContent(
-                        type="text",
-                        text=f"❌ Search failed: {result['error']}"
-                    )]
-                )
+        elif request.name == "search_user_content":
+            user_id = request.arguments.get("user_id", "")
+            query = request.arguments.get("query", "")
+            search_type = request.arguments.get("search_type", "hybrid")
+            limit = request.arguments.get("limit", 5)
             
-            # Format results for Claude
-            if result['total_results'] == 0:
-                response_text = f"No results found for '{query}' in the cloud database."
-            else:
-                response_text = f"Found {result['total_results']} results for '{query}':\n\n"
-                for i, item in enumerate(result['results'], 1):
-                    response_text += f"{i}. **{item['repo_name']}**\n"
-                    response_text += f"   - Documents: {item['document_count']}\n"
-                    response_text += f"   - Match: {item['relevance']}\n\n"
+            result = await quilt_server.search_user_content(user_id, query, search_type, limit)
+            return CallToolResult(content=[result])
             
-            # Add database stats
-            stats = result.get('database_stats', {})
-            response_text += f"\n📊 **Database Overview:**\n"
-            response_text += f"Total Documents: {stats.get('total_documents', 0)}\n"
-            response_text += f"Repositories: {len(stats.get('repositories', {}))}\n"
+        elif request.name == "get_database_stats":
+            result = await quilt_server.get_database_stats()
+            return CallToolResult(content=[result])
             
-            return CallToolResult(
-                content=[TextContent(type="text", text=response_text)]
-            )
-            
-        elif name == "get_cloud_database_stats":
-            print("📊 Getting cloud database stats", file=sys.stderr)
-            stats = quilt_server.get_cloud_database_stats()
-            
-            if stats.get('error'):
-                return CallToolResult(
-                    content=[TextContent(
-                        type="text",
-                        text=f"❌ Failed to get stats: {stats['error']}"
-                    )]
-                )
-            
-            response_text = "📊 **Cloud Database Statistics:**\n\n"
-            response_text += f"**Total Documents:** {stats.get('total_documents', 0)}\n\n"
-            
-            if 'repositories' in stats and stats['repositories']:
-                response_text += "**Repositories:**\n"
-                for repo, count in sorted(stats['repositories'].items(), key=lambda x: x[1], reverse=True):
-                    response_text += f"- {repo}: {count} documents\n"
-            else:
-                response_text += "No repositories found.\n"
-            
-            return CallToolResult(
-                content=[TextContent(type="text", text=response_text)]
-            )
-            
-        elif name == "get_cloud_health":
-            print("🏥 Checking cloud health", file=sys.stderr)
-            health = quilt_server.get_health_status()
-            
-            if health.get('error'):
-                return CallToolResult(
-                    content=[TextContent(
-                        type="text", 
-                        text=f"❌ Health check failed: {health['error']}"
-                    )]
-                )
-            
-            status = health.get('status', 'unknown')
-            postgres = health.get('postgres', 'unknown')
-            docs = health.get('documents_indexed', 0)
-            
-            response_text = f"🏥 **Cloud System Health:**\n\n"
-            response_text += f"**Status:** {status}\n"
-            response_text += f"**Database:** {postgres}\n" 
-            response_text += f"**Documents Indexed:** {docs}\n"
-            response_text += f"**API URL:** {quilt_server.api_url}\n"
-            
-            return CallToolResult(
-                content=[TextContent(type="text", text=response_text)]
-            )
-        
         else:
             return CallToolResult(
-                content=[TextContent(
-                    type="text",
-                    text=f"❌ Unknown tool: {name}"
-                )]
+                content=[TextContent(text=f"Unknown tool: {request.name}")],
+                isError=True
             )
             
     except Exception as e:
-        print(f"❌ Tool call error: {e}", file=sys.stderr)
         return CallToolResult(
-            content=[TextContent(
-                type="text",
-                text=f"❌ Error executing {name}: {str(e)}"
-            )]
+            content=[TextContent(text=f"Tool execution failed: {str(e)}")],
+            isError=True
         )
 
 async def main():
-    """Main server entry point"""
-    print("🚀 Starting Cloud Quilt MCP Server...", file=sys.stderr)
+    """Main entry point"""
+    print("🚀 Starting Quilt MCP Server...", file=sys.stderr)
     
+    # Run the server using stdio transport
     async with stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,
             write_stream,
             InitializationOptions(
-                server_name="cloud-quilt-database",
-                server_version="2.0.0-cloud",
+                server_name="quilt-search",
+                server_version="1.0.0",
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
-                    experimental_capabilities={},
-                ),
-            ),
+                    experimental_capabilities={}
+                )
+            )
         )
 
 if __name__ == "__main__":
-    print("🌐 Cloud MCP Server starting...", file=sys.stderr)
     asyncio.run(main())
