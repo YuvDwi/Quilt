@@ -156,9 +156,7 @@ function DashboardContent() {
       <div className="border-b border-gray-700 bg-black">
         <div className="flex justify-between items-center px-6 py-3">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 purple-gradient-icon rounded flex items-center justify-center">
-              <Database className="h-5 w-5 text-white" />
-            </div>
+            <span className="text-2xl font-sacramento text-purple-400">quilt</span>
             <span className="text-lg font-light">{user}'s projects</span>
             <div className="flex items-center space-x-1 text-sm text-gray-400">
               <span className="font-light">Hobby</span>

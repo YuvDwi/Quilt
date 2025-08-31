@@ -64,11 +64,8 @@ export default function Home() {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-purple-500 rounded flex items-center justify-center">
-                <Database className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-medium text-white">Quilt</span>
+            <div className="flex items-center">
+              <span className="text-3xl font-sacramento text-purple-400">quilt</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <button 
@@ -101,10 +98,10 @@ export default function Home() {
         {/* Grid Background with Moving Blocks */}
         <div className="absolute inset-0">
           {/* SVG Grid */}
-          <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
+          <svg className="w-full h-full opacity-60" viewBox="0 0 400 240">
             <defs>
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.7" opacity="0.4"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="1.2" opacity="0.7"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -209,10 +206,10 @@ export default function Home() {
       <section id="how-it-works" className="relative py-20 bg-black overflow-hidden">
         {/* Grid Background */}
         <div className="absolute inset-0">
-          <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
+          <svg className="w-full h-full opacity-60" viewBox="0 0 400 240">
             <defs>
               <pattern id="grid-how-it-works" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.7" opacity="0.4"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="1.2" opacity="0.7"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid-how-it-works)" />

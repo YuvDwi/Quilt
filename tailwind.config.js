@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         'parkinsans': ['Parkinsans', 'system-ui', '-apple-system', 'sans-serif'],
+        'sacramento': ['Sacramento', 'cursive'],
       },
       colors: {
         quilt: {
