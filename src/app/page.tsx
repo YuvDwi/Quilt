@@ -98,10 +98,10 @@ export default function Home() {
         {/* Grid Background with Moving Blocks */}
         <div className="absolute inset-0">
           {/* SVG Grid */}
-          <svg className="w-full h-full opacity-25" viewBox="0 0 100% 100%" preserveAspectRatio="none">
+          <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
             <defs>
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.8" opacity="0.5"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.9" opacity="0.6"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -206,10 +206,10 @@ export default function Home() {
       <section id="how-it-works" className="relative py-20 bg-black overflow-hidden">
         {/* Grid Background */}
         <div className="absolute inset-0">
-          <svg className="w-full h-full opacity-25" viewBox="0 0 100% 100%" preserveAspectRatio="none">
+          <svg className="w-full h-full opacity-40" viewBox="0 0 400 240">
             <defs>
               <pattern id="grid-how-it-works" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.8" opacity="0.5"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.9" opacity="0.6"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid-how-it-works)" />
