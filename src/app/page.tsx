@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     setIsVisible(true)
     
-    // Handle scroll for navbar background
+
     const handleScroll = () => {
       const scrollTop = window.scrollY
       setIsScrolled(scrollTop > 50)
@@ -56,7 +56,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Header */}
+
       <nav className={`fixed w-full z-50 transition-all duration-300 ${
         isScrolled 
           ? 'bg-black/95 backdrop-blur-md border-b border-gray-800' 
@@ -93,17 +93,17 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+
       <section className="relative h-screen overflow-hidden">
-        {/* Grid Background with Moving Blocks */}
+
         <div className="absolute inset-0">
-          {/* SVG Grid */}
+
           <div className="w-full h-full opacity-40" style={{
             backgroundImage: `url("data:image/svg+xml,%3csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3e%3cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='rgb(168 85 247)' stroke-width='1.8' opacity='0.6'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='100%25' height='100%25' fill='url(%23grid)' /%3e%3c/svg%3e")`,
             backgroundSize: '40px 40px'
           }}></div>
           
-          {/* Moving Purple Blocks */}
+
           <div className="absolute inset-0 p-2">
             <div className="relative w-full h-full">
               <div className="absolute bg-purple-500 block-1"></div>
@@ -114,11 +114,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Content Overlay */}
+
         <div className="relative z-10 h-full flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Left Content */}
+
               <div className="text-left bg-black/20 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/20">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl text-white mb-8 tracking-tight leading-tight">
                   Internet Infrastructure,{' '}
@@ -145,14 +145,14 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Right side placeholder for balance */}
+
               <div className="hidden lg:block"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features */}
+
       <section id="features" className="py-20 bg-black">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -198,9 +198,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How it Works */}
+
       <section id="how-it-works" className="relative py-20 bg-black overflow-hidden">
-        {/* Grid Background */}
+
         <div className="absolute inset-0">
           <div className="w-full h-full opacity-40" style={{
             backgroundImage: `url("data:image/svg+xml,%3csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3e%3cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='rgb(168 85 247)' stroke-width='1.8' opacity='0.6'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='100%25' height='100%25' fill='url(%23grid)' /%3e%3c/svg%3e")`,
@@ -262,7 +262,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
+
       <section className="py-20 bg-black border-t border-gray-800">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl text-white mb-6">

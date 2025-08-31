@@ -104,7 +104,7 @@ function DashboardContent() {
       if (response.data.success) {
         await fetchDeployments(user)
         
-        // Prepare deployment result data for modal
+
         const deploymentData = {
           success: response.data.success,
           message: response.data.message,
@@ -152,7 +152,7 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Top Header Bar */}
+
       <div className="border-b border-gray-700 bg-black">
         <div className="relative flex items-center justify-between px-6 py-3">
           <div className="flex items-center space-x-3">
@@ -192,7 +192,7 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Navigation Bar */}
+
       <div className="border-b border-gray-700 bg-black">
         <div className="flex items-center space-x-8 px-6">
           <button
@@ -228,13 +228,13 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Main Content */}
+
       <div className="px-6 py-8">
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Usage & Stats */}
+
             <div className="lg:col-span-1 space-y-6">
-              {/* Usage Card */}
+
               <div className="bg-black border border-gray-700 rounded-lg p-6">
                 <div className="mb-4">
                   <h3 className="text-lg font-light">Usage</h3>
@@ -260,7 +260,7 @@ function DashboardContent() {
                 </div>
               </div>
 
-              {/* Recent Deployments */}
+
               <div className="bg-black border border-gray-700 rounded-lg p-6">
                 <h3 className="text-lg font-light mb-4">Recent Deployments</h3>
                 {deployments.length > 0 ? (
@@ -281,7 +281,7 @@ function DashboardContent() {
               </div>
             </div>
 
-            {/* Right Column - Projects Grid */}
+
             <div className="lg:col-span-2">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-light">Projects</h2>

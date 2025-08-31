@@ -28,7 +28,7 @@ function AuthCallbackContent() {
           throw new Error('API URL not configured')
         }
         
-        // Exchange code for access token via backend (more secure)
+
         const tokenResponse = await axios.post(`${apiUrl}/auth/github/callback`, {
           code: code,
           state: state
@@ -48,7 +48,7 @@ function AuthCallbackContent() {
 
         setStatus('Redirecting to dashboard...')
 
-        // Use window.location.href for more reliable navigation
+
         window.location.href = `/dashboard?token=${accessToken}&user=${user.login}`
 
       } catch (error) {
@@ -60,7 +60,7 @@ function AuthCallbackContent() {
       }
     }
 
-    // Add a small delay to ensure component is mounted
+
     const timer = setTimeout(handleCallback, 100)
     return () => clearTimeout(timer)
   }, [searchParams, router])

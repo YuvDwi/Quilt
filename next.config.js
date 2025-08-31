@@ -7,7 +7,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production'
   },
   swcMinify: true,
-  // Removed experimental optimizeCss and output standalone for Vercel compatibility
+
 }
 
 module.exports = nextConfig

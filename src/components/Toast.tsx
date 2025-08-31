@@ -56,7 +56,7 @@ export default function Toast({ message, type, isVisible, onClose, duration = 40
   )
 }
 
-// Hook for managing toast state
+
 export function useToast() {
   const [toast, setToast] = useState<{
     message: string
