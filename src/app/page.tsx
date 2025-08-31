@@ -65,7 +65,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <span className="text-3xl font-sacramento text-purple-400">quilt</span>
+              <span className="text-4xl font-sacramento text-white">quilt</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <button 
@@ -98,10 +98,10 @@ export default function Home() {
         {/* Grid Background with Moving Blocks */}
         <div className="absolute inset-0">
           {/* SVG Grid */}
-          <svg className="w-full h-full opacity-60" viewBox="0 0 400 240">
+          <svg className="w-full h-full opacity-25" viewBox="0 0 100% 100%" preserveAspectRatio="none">
             <defs>
               <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="1.2" opacity="0.7"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.8" opacity="0.5"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />
@@ -206,10 +206,10 @@ export default function Home() {
       <section id="how-it-works" className="relative py-20 bg-black overflow-hidden">
         {/* Grid Background */}
         <div className="absolute inset-0">
-          <svg className="w-full h-full opacity-60" viewBox="0 0 400 240">
+          <svg className="w-full h-full opacity-25" viewBox="0 0 100% 100%" preserveAspectRatio="none">
             <defs>
               <pattern id="grid-how-it-works" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="1.2" opacity="0.7"/>
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.8" opacity="0.5"/>
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid-how-it-works)" />
