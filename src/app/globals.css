@@ -117,9 +117,9 @@ body {
 
 /* Block Animations - Perfect squares moving uniformly */
 .block-1, .block-2, .block-3, .block-4 {
-  width: 20px; /* Fixed square size */
-  height: 20px; /* Fixed square size */
-  border-radius: 2px;
+  width: 40px; /* Fixed square size to match grid */
+  height: 40px; /* Fixed square size to match grid */
+  border-radius: 4px;
 }
 
 .block-1 {

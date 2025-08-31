@@ -98,14 +98,10 @@ export default function Home() {
         {/* Grid Background with Moving Blocks */}
         <div className="absolute inset-0">
           {/* SVG Grid */}
-          <svg className="w-full h-full opacity-40" preserveAspectRatio="none">
-            <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.9" opacity="0.6"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
+          <div className="w-full h-full opacity-40" style={{
+            backgroundImage: `url("data:image/svg+xml,%3csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3e%3cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='rgb(168 85 247)' stroke-width='1.8' opacity='0.6'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='100%25' height='100%25' fill='url(%23grid)' /%3e%3c/svg%3e")`,
+            backgroundSize: '40px 40px'
+          }}></div>
           
           {/* Moving Purple Blocks */}
           <div className="absolute inset-0 p-2">
@@ -206,14 +202,10 @@ export default function Home() {
       <section id="how-it-works" className="relative py-20 bg-black overflow-hidden">
         {/* Grid Background */}
         <div className="absolute inset-0">
-          <svg className="w-full h-full opacity-40" preserveAspectRatio="none">
-            <defs>
-              <pattern id="grid-how-it-works" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgb(168 85 247)" strokeWidth="0.9" opacity="0.6"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid-how-it-works)" />
-          </svg>
+          <div className="w-full h-full opacity-40" style={{
+            backgroundImage: `url("data:image/svg+xml,%3csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3e%3cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='rgb(168 85 247)' stroke-width='1.8' opacity='0.6'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='100%25' height='100%25' fill='url(%23grid)' /%3e%3c/svg%3e")`,
+            backgroundSize: '40px 40px'
+          }}></div>
         </div>
         
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
