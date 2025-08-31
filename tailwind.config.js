@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'funnel': ['Funnel Display', 'system-ui', '-apple-system', 'sans-serif'],
+        'parkinsans': ['Parkinsans', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         quilt: {
